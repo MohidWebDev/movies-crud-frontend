@@ -14,6 +14,7 @@ import {
   createMovie,
   uploadPoster,
   updateMovie,
+  deleteMovie,
 } from "./services/movieApi";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
@@ -74,16 +75,29 @@ export default function App() {
     setMovieToDelete(movie);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!movieToDelete) return;
-    setMovies((prev) => prev.filter((m) => m.id !== movieToDelete.id));
-    showToast(`"${movieToDelete.title}" removed from archive`, "info");
-    setMovieToDelete(null);
 
-    // If viewing the deleted movie in details, navigate back to grid
-    if (selectedMovieId === movieToDelete.id) {
-      setSelectedMovieId(null);
-      setCurrentView("movies");
+    try {
+      await deleteMovie(movieToDelete.id);
+
+      const refreshed = await getAllMovies();
+      setMovies(refreshed);
+
+      showToast(`"${movieToDelete.title}" removed from archive`, "info");
+
+      if (selectedMovieId === movieToDelete.id) {
+        setSelectedMovieId(null);
+        setCurrentView("movies");
+      }
+
+      setMovieToDelete(null);
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Failed to delete movie",
+        "error",
+      );
+      setMovieToDelete(null);
     }
   };
 
