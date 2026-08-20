@@ -10,7 +10,7 @@ export const HeroLanding: React.FC<HeroLandingProps> = ({ onViewMovies }) => {
   return (
     <div
       id="hero-landing-page"
-      className="relative flex-1 w-full h-full flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-900/20 via-zinc-950 to-black py-6 sm:py-10"
+      className="relative flex-1 w-full h-full flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 overflow-hidden bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-red-900/20 via-zinc-950 to-black py-6 sm:py-10"
     >
       {/* Ambient background glowing circles and grid lines */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -24,9 +24,9 @@ export const HeroLanding: React.FC<HeroLandingProps> = ({ onViewMovies }) => {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[280px] bg-red-600/20 blur-[110px] rounded-full pointer-events-none"
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-112.5 h-70 bg-red-600/20 blur-[110px] rounded-full pointer-events-none"
         />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl h-full opacity-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:36px_36px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl h-full opacity-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[36px_36px]" />
       </div>
 
       {/* Hero Content Container */}

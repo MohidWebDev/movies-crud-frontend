@@ -86,8 +86,8 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
 
       {/* Main Details Card */}
       <div className="flex flex-col items-center text-center">
-        <div className="relative w-full max-w-md aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl mb-8 group">
-          <div className="absolute -inset-4 bg-gradient-to-t from-red-600/30 via-red-900/10 to-transparent blur-2xl -z-10" />
+        <div className="relative w-full max-w-md aspect-3/4 sm:aspect-4/5 rounded-3xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl mb-8 group">
+          <div className="absolute -inset-4 bg-linear-to-t from-red-600/30 via-red-900/10 to-transparent blur-2xl -z-10" />
 
           {movie.posterUrl && !imageError ? (
             <img

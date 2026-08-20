@@ -86,7 +86,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
         ease: "easeOut",
       },
     },
-  };
+  } as const;
 
   return (
     <div
@@ -199,7 +199,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
                 className="group relative flex flex-col bg-[#121212] rounded-2xl border border-zinc-800/90 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#E50914]/40 hover:shadow-[0_8px_25px_rgba(229,9,20,0.12)]"
               >
                 {/* Poster Area with rating badge */}
-                <div className="relative aspect-[3/4] w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                <div className="relative aspect-3/4 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
                   {hasValidImage ? (
                     <img
                       src={movie.posterUrl}
@@ -218,7 +218,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
                   )}
 
                   {/* Gradient overlay for poster readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-black/30 opacity-70 group-hover:opacity-50 transition-opacity" />
+                  <div className="absolute inset-0 bg-linear-to-t from-[#121212] via-transparent to-black/30 opacity-70 group-hover:opacity-50 transition-opacity" />
                 </div>
 
                 {/* Card Content Information */}

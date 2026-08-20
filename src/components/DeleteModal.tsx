@@ -50,7 +50,7 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
             </button>
 
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-950/80 border border-red-800 flex items-center justify-center text-[#E50914] flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-red-950/80 border border-red-800 flex items-center justify-center text-[#E50914] shrink-0">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div>

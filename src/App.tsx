@@ -177,7 +177,7 @@ export default function App() {
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -15 },
     transition: { duration: 0.35, ease: "easeOut" },
-  };
+  } as const;
 
   return (
     <div
