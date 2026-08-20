@@ -9,7 +9,12 @@ import { AddMovieForm } from "./components/AddMovieForm";
 import { EditMovieForm } from "./components/EditMovieForm";
 import { DeleteModal } from "./components/DeleteModal";
 import { Movie, ViewMode, ToastNotification } from "./types";
-import { getAllMovies, createMovie, uploadPoster } from "./services/movieApi";
+import {
+  getAllMovies,
+  createMovie,
+  uploadPoster,
+  updateMovie,
+} from "./services/movieApi";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
 export default function App() {
@@ -112,16 +117,40 @@ export default function App() {
     }
   };
 
-  const handleUpdateMovie = (updated: Movie) => {
-    setMovies((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
-    showToast(`"${updated.title}" updated successfully!`, "success");
-    if (selectedMovieId === updated.id) {
-      setCurrentView("details"); // MovieDetails will refetch automatically
-    } else {
-      setCurrentView("movies");
+  const handleUpdateMovie = async (
+    id: string,
+    updatedData: {
+      title: string;
+      director: string;
+      year: number;
+      genre: string;
+    },
+    posterFile: File | null,
+  ) => {
+    try {
+      await updateMovie(id, updatedData);
+
+      if (posterFile) {
+        await uploadPoster(id, posterFile);
+      }
+
+      const refreshed = await getAllMovies();
+      setMovies(refreshed);
+
+      showToast(`"${updatedData.title}" updated successfully!`, "success");
+      if (selectedMovieId === id) {
+        setCurrentView("details");
+      } else {
+        setCurrentView("movies");
+      }
+      setMovieToEdit(null);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Failed to update movie",
+        "error",
+      );
     }
-    setMovieToEdit(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleNavigate = (view: ViewMode) => {

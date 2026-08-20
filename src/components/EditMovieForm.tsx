@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { ArrowLeft, Film, UploadCloud, X } from "lucide-react";
+import { ArrowLeft, Film, UploadCloud } from "lucide-react";
 import { Movie } from "../types";
 
 interface EditMovieFormProps {
   movie: Movie;
-  onUpdateMovie: (updated: Movie) => void;
+  onUpdateMovie: (
+    id: string,
+    updated: { title: string; director: string; year: number; genre: string },
+    posterFile: File | null,
+  ) => void;
   onCancel: () => void;
 }
 
@@ -17,19 +21,17 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
   const [title, setTitle] = useState(movie.title);
   const [director, setDirector] = useState(movie.director);
   const [year, setYear] = useState(movie.year.toString());
-  const [genre, setGenre] = useState(
-    movie.genres && movie.genres.length > 0
-      ? movie.genres.join(", ")
-      : movie.genre,
-  );
-  const [posterUrl, setPosterUrl] = useState(movie.posterUrl || "");
+  const [genre, setGenre] = useState(movie.genre);
+  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [posterPreview, setPosterPreview] = useState(movie.posterUrl || "");
 
   const handleFileUpload = (file: File) => {
     if (!file.type.startsWith("image/")) return;
+    setPosterFile(file);
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        setPosterUrl(e.target.result as string);
+        setPosterPreview(e.target.result as string);
       }
     };
     reader.readAsDataURL(file);
@@ -37,22 +39,19 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !director.trim()) return;
+    if (!title.trim() || !director.trim() || !year.trim() || !genre.trim())
+      return;
 
-    const genresList = genre
-      .split(",")
-      .map((g) => g.trim().toUpperCase())
-      .filter(Boolean);
-
-    onUpdateMovie({
-      ...movie,
-      title: title.trim(),
-      director: director.trim(),
-      year: year.trim() || movie.year,
-      genre: genre.trim() || "General",
-      genres: genresList.length > 0 ? genresList : ["CINEMA"],
-      posterUrl: posterUrl.trim() || undefined,
-    });
+    onUpdateMovie(
+      movie.id,
+      {
+        title: title.trim(),
+        director: director.trim(),
+        year: Number(year),
+        genre: genre.trim(),
+      },
+      posterFile,
+    );
   };
 
   return (
@@ -78,9 +77,9 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
             {/* Poster Thumbnail & Change */}
             <div className="w-full sm:w-44 flex-shrink-0 flex flex-col items-center">
               <div className="w-full aspect-[3/4] rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden relative group">
-                {posterUrl ? (
+                {posterPreview ? (
                   <img
-                    src={posterUrl}
+                    src={posterPreview}
                     alt={title}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
@@ -110,7 +109,7 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
               </div>
             </div>
 
-            {/* Inputs matching mockup 5 */}
+            {/* Inputs */}
             <div className="flex-1 w-full space-y-4">
               <div>
                 <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
@@ -147,7 +146,8 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
                   </label>
                   <input
                     id="edit-input-year"
-                    type="text"
+                    type="number"
+                    required
                     value={year}
                     onChange={(e) => setYear(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white text-sm focus:outline-none focus:border-[#E50914] transition-all"
@@ -162,6 +162,7 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
                 <input
                   id="edit-input-genre"
                   type="text"
+                  required
                   value={genre}
                   onChange={(e) => setGenre(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white text-sm focus:outline-none focus:border-[#E50914] transition-all"
@@ -170,7 +171,7 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
             </div>
           </div>
 
-          {/* Action buttons matching mockup: "Cancel" & "Update Movie" */}
+          {/* Action buttons */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
             <button
               type="button"
