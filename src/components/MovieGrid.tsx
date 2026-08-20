@@ -1,19 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  Search,
-  Film,
-  Edit3,
-  Trash2,
-  Plus,
-  Star,
-  X,
-  Filter,
-} from "lucide-react";
+import { Search, Film, Edit3, Trash2, Plus, X, Filter } from "lucide-react";
 import { Movie } from "../types";
 
 interface MovieGridProps {
   movies: Movie[];
+  isLoading?: boolean;
+  error?: string | null;
   onSelectMovie: (movie: Movie) => void;
   onEditMovie: (movie: Movie) => void;
   onDeleteMovie: (movie: Movie) => void;
@@ -22,6 +15,8 @@ interface MovieGridProps {
 
 export const MovieGrid: React.FC<MovieGridProps> = ({
   movies,
+  isLoading = false,
+  error = null,
   onSelectMovie,
   onEditMovie,
   onDeleteMovie,
@@ -35,15 +30,11 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
   const allGenres = useMemo(() => {
     const genreSet = new Set<string>();
     movies.forEach((m) => {
-      if (m.genres && m.genres.length > 0) {
-        m.genres.forEach((g) => genreSet.add(g.toUpperCase()));
-      } else if (m.genre) {
-        m.genre
-          .split(",")
-          .map((s) => s.trim().toUpperCase())
-          .filter(Boolean)
-          .forEach((g) => genreSet.add(g));
-      }
+      m.genre
+        .split(",")
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean)
+        .forEach((g) => genreSet.add(g));
     });
     return ["ALL", ...Array.from(genreSet)];
   }, [movies]);
@@ -63,9 +54,9 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
 
       if (selectedGenre === "ALL") return true;
 
-      const movieGenres = movie.genres
-        ? movie.genres.map((g) => g.toUpperCase())
-        : movie.genre.split(",").map((s) => s.trim().toUpperCase());
+      const movieGenres = movie.genre
+        .split(",")
+        .map((s) => s.trim().toUpperCase());
 
       return movieGenres.includes(selectedGenre);
     });
@@ -173,7 +164,19 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
       )}
 
       {/* Movie Cards 4-Column Grid */}
-      {filteredMovies.length > 0 ? (
+      {isLoading ? (
+        <div className="my-16 flex flex-col items-center justify-center text-zinc-400">
+          <div className="w-10 h-10 border-2 border-zinc-700 border-t-[#E50914] rounded-full animate-spin mb-4" />
+          <p className="text-sm">Loading movies...</p>
+        </div>
+      ) : error ? (
+        <div className="my-16 p-8 text-center rounded-2xl bg-[#121212] border border-red-900/40 max-w-lg mx-auto">
+          <p className="text-red-400 font-semibold mb-1">
+            Failed to load movies
+          </p>
+          <p className="text-sm text-zinc-400">{error}</p>
+        </div>
+      ) : filteredMovies.length > 0 ? (
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -182,13 +185,10 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
         >
           {filteredMovies.map((movie) => {
             const hasValidImage = movie.posterUrl && !imageErrors[movie.id];
-            const parsedGenres =
-              movie.genres && movie.genres.length > 0
-                ? movie.genres
-                : movie.genre
-                    .split(",")
-                    .map((g) => g.trim())
-                    .filter(Boolean);
+            const parsedGenres = movie.genre
+              .split(",")
+              .map((g) => g.trim())
+              .filter(Boolean);
 
             return (
               <motion.div
@@ -219,14 +219,6 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
 
                   {/* Gradient overlay for poster readability */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-black/30 opacity-70 group-hover:opacity-50 transition-opacity" />
-
-                  {/* Rating Badge */}
-                  {movie.rating && (
-                    <div className="absolute top-3 right-3 px-2 py-1 rounded-md bg-[#E50914] text-white text-xs font-black shadow-lg flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-white text-white" />
-                      <span>{movie.rating.toFixed(1)}</span>
-                    </div>
-                  )}
                 </div>
 
                 {/* Card Content Information */}
