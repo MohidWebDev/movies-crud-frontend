@@ -1,39 +1,73 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import {
-  ArrowLeft,
-  Edit3,
-  Trash2,
-  Calendar,
-  User,
-  Film,
-  Star,
-  Clock,
-} from "lucide-react";
+import { ArrowLeft, Edit3, Trash2, Calendar, User, Film } from "lucide-react";
 import { Movie } from "../types";
+import { getMovieById } from "../services/movieApi";
 
 interface MovieDetailsProps {
-  movie: Movie;
+  movieId: string;
   onBack: () => void;
   onEdit: (movie: Movie) => void;
   onDelete: (movie: Movie) => void;
 }
 
 export const MovieDetails: React.FC<MovieDetailsProps> = ({
-  movie,
+  movieId,
   onBack,
   onEdit,
   onDelete,
 }) => {
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
 
-  const parsedGenres =
-    movie.genres && movie.genres.length > 0
-      ? movie.genres
-      : movie.genre
-          .split(",")
-          .map((g) => g.trim())
-          .filter(Boolean);
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getMovieById(movieId);
+        setMovie(data);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load movie details",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMovie();
+  }, [movieId]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-24 flex flex-col items-center text-zinc-400">
+        <div className="w-10 h-10 border-2 border-zinc-700 border-t-[#E50914] rounded-full animate-spin mb-4" />
+        <p className="text-sm">Loading movie...</p>
+      </div>
+    );
+  }
+
+  if (error || !movie) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-24 text-center">
+        <p className="text-red-400 font-semibold mb-1">Failed to load movie</p>
+        <p className="text-sm text-zinc-400 mb-6">{error}</p>
+        <button
+          onClick={onBack}
+          className="px-6 py-2.5 rounded-xl bg-[#E50914] text-white text-sm font-semibold hover:bg-[#F40612] transition-all cursor-pointer"
+        >
+          Back to All Movies
+        </button>
+      </div>
+    );
+  }
+
+  const parsedGenres = movie.genre
+    .split(",")
+    .map((g) => g.trim())
+    .filter(Boolean);
 
   return (
     <div
@@ -50,11 +84,9 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
         <span>Back to All Movies</span>
       </button>
 
-      {/* Main Details Card matching Mockup 3 */}
+      {/* Main Details Card */}
       <div className="flex flex-col items-center text-center">
-        {/* Poster with ambient glow effect frame */}
         <div className="relative w-full max-w-md aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl mb-8 group">
-          {/* Ambient red glow behind poster */}
           <div className="absolute -inset-4 bg-gradient-to-t from-red-600/30 via-red-900/10 to-transparent blur-2xl -z-10" />
 
           {movie.posterUrl && !imageError ? (
@@ -73,17 +105,8 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
               </span>
             </div>
           )}
-
-          {/* Rating tag in poster overlay */}
-          {movie.rating && (
-            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-lg bg-[#E50914] text-white text-sm font-black shadow-xl flex items-center gap-1.5 backdrop-blur-sm">
-              <Star className="w-4 h-4 fill-white text-white" />
-              <span>{movie.rating.toFixed(1)} / 10</span>
-            </div>
-          )}
         </div>
 
-        {/* Movie Title */}
         <h1
           id="details-movie-title"
           className="text-4xl sm:text-5xl font-black text-white tracking-tight font-display mb-3"
@@ -91,7 +114,6 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
           {movie.title}
         </h1>
 
-        {/* Metadata subline: Year • Director */}
         <div className="flex flex-wrap items-center justify-center gap-3 text-zinc-400 text-sm sm:text-base font-medium mb-4">
           <span className="flex items-center gap-1.5 text-zinc-300">
             <Calendar className="w-4 h-4 text-[#E50914]" />
@@ -102,18 +124,8 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
             <User className="w-4 h-4 text-[#E50914]" />
             {movie.director}
           </span>
-          {movie.duration && (
-            <>
-              <span className="text-zinc-600">•</span>
-              <span className="flex items-center gap-1.5 text-zinc-300">
-                <Clock className="w-4 h-4 text-[#E50914]" />
-                {movie.duration}
-              </span>
-            </>
-          )}
         </div>
 
-        {/* Genre Tags */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
           {parsedGenres.map((g, idx) => (
             <span
@@ -125,7 +137,6 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
           ))}
         </div>
 
-        {/* Action Buttons: "Edit Details" and "Delete" */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
           <motion.button
             id="details-edit-btn"

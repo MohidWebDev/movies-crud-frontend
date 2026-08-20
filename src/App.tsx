@@ -18,7 +18,7 @@ export default function App() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [currentView, setCurrentView] = useState<ViewMode>("home");
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [selectedMovieId, setSelectedMovieId] = useState<string | null>(null);
   const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null);
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
@@ -54,7 +54,7 @@ export default function App() {
   };
 
   const handleSelectMovie = (movie: Movie) => {
-    setSelectedMovie(movie);
+    setSelectedMovieId(movie.id);
     setCurrentView("details");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -76,8 +76,8 @@ export default function App() {
     setMovieToDelete(null);
 
     // If viewing the deleted movie in details, navigate back to grid
-    if (selectedMovie?.id === movieToDelete.id) {
-      setSelectedMovie(null);
+    if (selectedMovieId === movieToDelete.id) {
+      setSelectedMovieId(null);
       setCurrentView("movies");
     }
   };
@@ -101,9 +101,8 @@ export default function App() {
   const handleUpdateMovie = (updated: Movie) => {
     setMovies((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
     showToast(`"${updated.title}" updated successfully!`, "success");
-    if (selectedMovie?.id === updated.id) {
-      setSelectedMovie(updated);
-      setCurrentView("details");
+    if (selectedMovieId === updated.id) {
+      setCurrentView("details"); // MovieDetails will refetch automatically
     } else {
       setCurrentView("movies");
     }
@@ -159,10 +158,10 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentView === "details" && selectedMovie && (
+          {currentView === "details" && selectedMovieId && (
             <motion.div key="details" {...pageTransition}>
               <MovieDetails
-                movie={selectedMovie}
+                movieId={selectedMovieId}
                 onBack={() => handleNavigate("movies")}
                 onEdit={handleStartEdit}
                 onDelete={handlePromptDelete}
@@ -185,7 +184,7 @@ export default function App() {
                 movie={movieToEdit}
                 onUpdateMovie={handleUpdateMovie}
                 onCancel={() =>
-                  selectedMovie
+                  selectedMovieId
                     ? handleNavigate("details")
                     : handleNavigate("movies")
                 }
