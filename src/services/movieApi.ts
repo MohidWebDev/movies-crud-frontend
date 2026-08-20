@@ -10,7 +10,10 @@ interface BackendMovie {
   director: string;
   year: number;
   genre: string;
-  poster?: string;
+  poster?: {
+    url: string;
+    publicId: string;
+  };
 }
 
 // Converts a backend movie object into the shape our frontend expects
@@ -20,9 +23,7 @@ const normalizeMovie = (movie: BackendMovie): Movie => ({
   director: movie.director,
   year: movie.year,
   genre: movie.genre,
-  posterUrl: movie.poster
-    ? `${API_BASE_URL}/uploads/${movie.poster}`
-    : undefined,
+  posterUrl: movie.poster?.url,
 });
 
 // Handles non-2xx responses consistently across all requests
