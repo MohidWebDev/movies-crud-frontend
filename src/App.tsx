@@ -9,7 +9,7 @@ import { AddMovieForm } from "./components/AddMovieForm";
 import { EditMovieForm } from "./components/EditMovieForm";
 import { DeleteModal } from "./components/DeleteModal";
 import { Movie, ViewMode, ToastNotification } from "./types";
-import { getAllMovies } from "./services/movieApi";
+import { getAllMovies, createMovie, uploadPoster } from "./services/movieApi";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
 export default function App() {
@@ -82,20 +82,34 @@ export default function App() {
     }
   };
 
-  const handleAddMovie = (newMovieData: Omit<Movie, "id" | "createdAt">) => {
-    const newMovie: Movie = {
-      ...newMovieData,
-      id:
-        "movie-" +
-        Date.now().toString(36) +
-        "-" +
-        Math.random().toString(36).substring(2, 6),
-      createdAt: Date.now(),
-    };
-    setMovies((prev) => [newMovie, ...prev]);
-    showToast(`"${newMovie.title}" added to your archive!`, "success");
-    setCurrentView("movies");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleAddMovie = async (
+    newMovieData: {
+      title: string;
+      director: string;
+      year: number;
+      genre: string;
+    },
+    posterFile: File | null,
+  ) => {
+    try {
+      const newMovie = await createMovie(newMovieData);
+
+      if (posterFile) {
+        await uploadPoster(newMovie.id, posterFile);
+      }
+
+      const refreshed = await getAllMovies();
+      setMovies(refreshed);
+
+      showToast(`"${newMovie.title}" added to your archive!`, "success");
+      setCurrentView("movies");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : "Failed to add movie",
+        "error",
+      );
+    }
   };
 
   const handleUpdateMovie = (updated: Movie) => {

@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import {
-  UploadCloud,
-  Image as ImageIcon,
-  Plus,
-  X,
-  ArrowLeft,
-} from "lucide-react";
+import { UploadCloud, X, ArrowLeft } from "lucide-react";
 import { Movie } from "../types";
 
 interface AddMovieFormProps {
-  onAddMovie: (movie: Omit<Movie, "id" | "createdAt">) => void;
+  onAddMovie: (
+    movie: { title: string; director: string; year: number; genre: string },
+    posterFile: File | null,
+  ) => void;
   onCancel: () => void;
 }
 
@@ -22,39 +19,41 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
   const [director, setDirector] = useState("");
   const [year, setYear] = useState("");
   const [genre, setGenre] = useState("");
-  const [posterUrl, setPosterUrl] = useState("");
-  const [rating, setRating] = useState("8.5");
+  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [posterPreview, setPosterPreview] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
   const handleFileUpload = (file: File) => {
     if (!file.type.startsWith("image/")) return;
+    setPosterFile(file);
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        setPosterUrl(e.target.result as string);
+        setPosterPreview(e.target.result as string);
       }
     };
     reader.readAsDataURL(file);
   };
 
+  const handleRemovePoster = () => {
+    setPosterFile(null);
+    setPosterPreview("");
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !director.trim()) return;
+    if (!title.trim() || !director.trim() || !year.trim() || !genre.trim())
+      return;
 
-    const genresList = genre
-      .split(",")
-      .map((g) => g.trim().toUpperCase())
-      .filter(Boolean);
-
-    onAddMovie({
-      title: title.trim(),
-      director: director.trim(),
-      year: year.trim() || "2024",
-      genre: genre.trim() || "General",
-      genres: genresList.length > 0 ? genresList : ["CINEMA"],
-      posterUrl: posterUrl.trim() || undefined,
-      rating: parseFloat(rating) || 8.0,
-    });
+    onAddMovie(
+      {
+        title: title.trim(),
+        director: director.trim(),
+        year: Number(year),
+        genre: genre.trim(),
+      },
+      posterFile,
+    );
   };
 
   return (
@@ -84,7 +83,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
           {/* Poster Upload Zone */}
           <div>
             <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
-              Poster Image
+              Poster Image (optional)
             </label>
             <div
               onDragOver={(e) => {
@@ -105,17 +104,16 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
                   : "border-zinc-800 bg-[#181818] hover:border-zinc-700"
               }`}
             >
-              {posterUrl ? (
+              {posterPreview ? (
                 <div className="relative inline-block">
                   <img
-                    src={posterUrl}
+                    src={posterPreview}
                     alt="Poster Preview"
-                    referrerPolicy="no-referrer"
                     className="h-44 object-cover rounded-lg shadow-md mx-auto"
                   />
                   <button
                     type="button"
-                    onClick={() => setPosterUrl("")}
+                    onClick={handleRemovePoster}
                     className="absolute -top-2 -right-2 p-1.5 bg-[#E50914] text-white rounded-full shadow-lg hover:scale-110 transition-transform cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -146,7 +144,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
             </div>
           </div>
 
-          {/* Form Fields matching mockup */}
+          {/* Form Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
@@ -180,11 +178,12 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
-                Release Year
+                Release Year *
               </label>
               <input
                 id="input-year"
-                type="text"
+                type="number"
+                required
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
                 placeholder="e.g. 2024"
@@ -194,11 +193,12 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
-                Primary Genre
+                Genre *
               </label>
               <input
                 id="input-genre"
                 type="text"
+                required
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 placeholder="e.g. Drama, Sci-Fi"
