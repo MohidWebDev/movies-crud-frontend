@@ -9,7 +9,7 @@ interface EditMovieFormProps {
     id: string,
     updated: { title: string; director: string; year: number; genre: string },
     posterFile: File | null,
-  ) => void;
+  ) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -24,6 +24,7 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
   const [genre, setGenre] = useState(movie.genre);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState(movie.posterUrl || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileUpload = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -37,21 +38,26 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !director.trim() || !year.trim() || !genre.trim())
       return;
 
-    onUpdateMovie(
-      movie.id,
-      {
-        title: title.trim(),
-        director: director.trim(),
-        year: Number(year),
-        genre: genre.trim(),
-      },
-      posterFile,
-    );
+    setIsSubmitting(true);
+    try {
+      await onUpdateMovie(
+        movie.id,
+        {
+          title: title.trim(),
+          director: director.trim(),
+          year: Number(year),
+          genre: genre.trim(),
+        },
+        posterFile,
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -75,8 +81,8 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col sm:flex-row gap-6 items-start">
             {/* Poster Thumbnail & Change */}
-            <div className="w-full sm:w-44 flex-shrink-0 flex flex-col items-center">
-              <div className="w-full aspect-[3/4] rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden relative group">
+            <div className="w-full sm:w-44 shrink-0 flex flex-col items-center">
+              <div className="w-full aspect-3/4 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden relative group">
                 {posterPreview ? (
                   <img
                     src={posterPreview}
@@ -184,9 +190,10 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
             <button
               type="submit"
               id="edit-submit-btn"
-              className="px-6 py-2.5 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white text-sm font-bold shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all cursor-pointer"
+              disabled={isSubmitting}
+              className="px-6 py-2.5 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white text-sm font-bold shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Update Movie
+              {isSubmitting ? "Updating..." : "Update Movie"}
             </button>
           </div>
         </form>

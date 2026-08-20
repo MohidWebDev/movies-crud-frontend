@@ -7,7 +7,7 @@ interface AddMovieFormProps {
   onAddMovie: (
     movie: { title: string; director: string; year: number; genre: string },
     posterFile: File | null,
-  ) => void;
+  ) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -22,6 +22,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileUpload = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -40,20 +41,25 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
     setPosterPreview("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !director.trim() || !year.trim() || !genre.trim())
       return;
 
-    onAddMovie(
-      {
-        title: title.trim(),
-        director: director.trim(),
-        year: Number(year),
-        genre: genre.trim(),
-      },
-      posterFile,
-    );
+    setIsSubmitting(true);
+    try {
+      await onAddMovie(
+        {
+          title: title.trim(),
+          director: director.trim(),
+          year: Number(year),
+          genre: genre.trim(),
+        },
+        posterFile,
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -210,11 +216,12 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
           <motion.button
             id="submit-add-movie-btn"
             type="submit"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full py-3.5 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(229,9,20,0.5)] transition-all cursor-pointer"
+            disabled={isSubmitting}
+            whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+            whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+            className="w-full py-3.5 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(229,9,20,0.5)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Add Movie
+            {isSubmitting ? "Adding..." : "Add Movie"}
           </motion.button>
         </form>
       </div>
