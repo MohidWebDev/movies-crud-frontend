@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { Search, Film, Edit3, Trash2, Plus, X, Filter } from "lucide-react";
 import { Movie } from "../types";
 

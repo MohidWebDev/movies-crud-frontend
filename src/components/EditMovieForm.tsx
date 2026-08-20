@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { motion } from "motion/react";
 import { ArrowLeft, Film, UploadCloud } from "lucide-react";
 import { Movie } from "../types";
 

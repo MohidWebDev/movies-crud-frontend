@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { UploadCloud, X, ArrowLeft } from "lucide-react";
-import { Movie } from "../types";
 
 interface AddMovieFormProps {
   onAddMovie: (
