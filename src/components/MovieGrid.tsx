@@ -233,7 +233,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
 
                     {/* Genre Tags */}
                     <div className="flex flex-wrap gap-1.5 mt-2.5">
-                      {parsedGenres.slice(0, 2).map((genre, idx) => (
+                      {parsedGenres.map((genre, idx) => (
                         <span
                           key={idx}
                           className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-[#1c1c1c] text-zinc-300 border border-zinc-800"
