@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -8,7 +9,7 @@ import { MovieDetails } from "./components/MovieDetails";
 import { AddMovieForm } from "./components/AddMovieForm";
 import { EditMovieForm } from "./components/EditMovieForm";
 import { DeleteModal } from "./components/DeleteModal";
-import { Movie, ViewMode, ToastNotification } from "./types";
+import { Movie, ToastNotification } from "./types";
 import {
   getAllMovies,
   createMovie,
@@ -18,18 +19,69 @@ import {
 } from "./services/movieApi";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
+// Small wrapper so EditMovieForm can be reached as a route,
+// looking up the movie by the :id URL param.
+interface EditMovieRouteProps {
+  movies: Movie[];
+  isLoading: boolean;
+  onUpdateMovie: (
+    id: string,
+    updated: { title: string; director: string; year: number; genre: string },
+    posterFile: File | null,
+  ) => Promise<void>;
+}
+
+const EditMovieRoute: React.FC<EditMovieRouteProps> = ({
+  movies,
+  isLoading,
+  onUpdateMovie,
+}) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const movie = movies.find((m) => m.id === id);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-24 flex flex-col items-center text-zinc-400">
+        <div className="w-10 h-10 border-2 border-zinc-700 border-t-[#E50914] rounded-full animate-spin mb-4" />
+        <p className="text-sm">Loading movie...</p>
+      </div>
+    );
+  }
+
+  if (!movie) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-24 text-center">
+        <p className="text-red-400 font-semibold mb-1">Movie not found</p>
+        <button
+          onClick={() => navigate("/movies")}
+          className="px-6 py-2.5 rounded-xl bg-[#E50914] text-white text-sm font-semibold hover:bg-[#F40612] transition-all cursor-pointer mt-4"
+        >
+          Back to All Movies
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <EditMovieForm
+      movie={movie}
+      onUpdateMovie={onUpdateMovie}
+      onCancel={() => navigate(-1)}
+    />
+  );
+};
+
 export default function App() {
+  const navigate = useNavigate();
+
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [currentView, setCurrentView] = useState<ViewMode>("home");
-  const [selectedMovieId, setSelectedMovieId] = useState<string | null>(null);
-  const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null);
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
 
-  // Fetch movies from the backend on initial load
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -60,14 +112,12 @@ export default function App() {
   };
 
   const handleSelectMovie = (movie: Movie) => {
-    setSelectedMovieId(movie.id);
-    setCurrentView("details");
+    navigate(`/movies/${movie.id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleStartEdit = (movie: Movie) => {
-    setMovieToEdit(movie);
-    setCurrentView("edit");
+    navigate(`/edit/${movie.id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -85,11 +135,7 @@ export default function App() {
       setMovies(refreshed);
 
       showToast(`"${movieToDelete.title}" removed from archive`, "info");
-
-      if (selectedMovieId === movieToDelete.id) {
-        setSelectedMovieId(null);
-        setCurrentView("movies");
-      }
+      navigate("/movies");
 
       setMovieToDelete(null);
     } catch (err) {
@@ -121,7 +167,7 @@ export default function App() {
       setMovies(refreshed);
 
       showToast(`"${newMovie.title}" added to your archive!`, "success");
-      setCurrentView("movies");
+      navigate("/movies");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       showToast(
@@ -152,12 +198,7 @@ export default function App() {
       setMovies(refreshed);
 
       showToast(`"${updatedData.title}" updated successfully!`, "success");
-      if (selectedMovieId === id) {
-        setCurrentView("details");
-      } else {
-        setCurrentView("movies");
-      }
-      setMovieToEdit(null);
+      navigate(`/movies/${id}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       showToast(
@@ -167,45 +208,20 @@ export default function App() {
     }
   };
 
-  const handleNavigate = (view: ViewMode) => {
-    if (view === "movies") {
-      setSelectedMovieId(null);
-    }
-    setCurrentView(view);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const pageTransition = {
-    initial: { opacity: 0, y: 15 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -15 },
-    transition: { duration: 0.35, ease: "easeOut" },
-  } as const;
-
   return (
-    <div
-      className={`min-h-screen ${
-        currentView === "home" ? "h-screen overflow-hidden" : ""
-      } flex flex-col bg-[#0A0A0A] text-white selection:bg-[#E50914] selection:text-white font-sans`}
-    >
-      {/* Global Navigation Bar */}
-      <Navbar currentView={currentView} onNavigate={handleNavigate} />
+    <div className="min-h-screen flex flex-col bg-[#0A0A0A] text-white selection:bg-[#E50914] selection:text-white font-sans">
+      <Navbar />
 
-      {/* Main Page Route Container with Cross-Fade Animations */}
       <main className="flex-1 flex flex-col min-h-0">
-        <AnimatePresence mode="wait">
-          {currentView === "home" && (
-            <motion.div
-              key="home"
-              className="flex-1 flex flex-col min-h-0"
-              {...pageTransition}
-            >
-              <HeroLanding onViewMovies={() => handleNavigate("movies")} />
-            </motion.div>
-          )}
+        <Routes>
+          <Route
+            path="/"
+            element={<HeroLanding onViewMovies={() => navigate("/movies")} />}
+          />
 
-          {currentView === "movies" && (
-            <motion.div key="movies" {...pageTransition}>
+          <Route
+            path="/movies"
+            element={
               <MovieGrid
                 movies={movies}
                 isLoading={isLoading}
@@ -213,51 +229,46 @@ export default function App() {
                 onSelectMovie={handleSelectMovie}
                 onEditMovie={handleStartEdit}
                 onDeleteMovie={handlePromptDelete}
-                onAddMovie={() => handleNavigate("add")}
+                onAddMovie={() => navigate("/add")}
               />
-            </motion.div>
-          )}
+            }
+          />
 
-          {currentView === "details" && selectedMovieId && (
-            <motion.div key="details" {...pageTransition}>
-              <MovieDetails
-                movieId={selectedMovieId}
-                onBack={() => handleNavigate("movies")}
+          <Route
+            path="/movies/:id"
+            element={
+              <MovieDetailsRoute
                 onEdit={handleStartEdit}
                 onDelete={handlePromptDelete}
               />
-            </motion.div>
-          )}
+            }
+          />
 
-          {currentView === "add" && (
-            <motion.div key="add" {...pageTransition}>
+          <Route
+            path="/add"
+            element={
               <AddMovieForm
                 onAddMovie={handleAddMovie}
-                onCancel={() => handleNavigate("movies")}
+                onCancel={() => navigate("/movies")}
               />
-            </motion.div>
-          )}
+            }
+          />
 
-          {currentView === "edit" && movieToEdit && (
-            <motion.div key="edit" {...pageTransition}>
-              <EditMovieForm
-                movie={movieToEdit}
+          <Route
+            path="/edit/:id"
+            element={
+              <EditMovieRoute
+                movies={movies}
+                isLoading={isLoading}
                 onUpdateMovie={handleUpdateMovie}
-                onCancel={() =>
-                  selectedMovieId
-                    ? handleNavigate("details")
-                    : handleNavigate("movies")
-                }
               />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            }
+          />
+        </Routes>
       </main>
 
-      {/* Footer */}
-      <Footer onNavigateHome={() => handleNavigate("home")} />
+      <Footer onNavigateHome={() => navigate("/")} />
 
-      {/* Delete Confirmation Modal */}
       <DeleteModal
         movie={movieToDelete}
         isOpen={Boolean(movieToDelete)}
@@ -265,7 +276,6 @@ export default function App() {
         onCancel={() => setMovieToDelete(null)}
       />
 
-      {/* Floating Toast Feedback Notifications */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
         <AnimatePresence>
           {toasts.map((toast) => (
@@ -301,3 +311,27 @@ export default function App() {
     </div>
   );
 }
+
+interface MovieDetailsRouteProps {
+  onEdit: (movie: Movie) => void;
+  onDelete: (movie: Movie) => void;
+}
+
+const MovieDetailsRoute: React.FC<MovieDetailsRouteProps> = ({
+  onEdit,
+  onDelete,
+}) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  if (!id) return null;
+
+  return (
+    <MovieDetails
+      movieId={id}
+      onBack={() => navigate("/movies")}
+      onEdit={onEdit}
+      onDelete={onDelete}
+    />
+  );
+};

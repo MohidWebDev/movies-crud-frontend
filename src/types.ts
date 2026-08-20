@@ -7,8 +7,6 @@ export interface Movie {
   posterUrl?: string;
 }
 
-export type ViewMode = "home" | "movies" | "details" | "add" | "edit";
-
 export interface ToastNotification {
   id: string;
   type: "success" | "error" | "info";
