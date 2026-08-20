@@ -168,6 +168,9 @@ export default function App() {
   };
 
   const handleNavigate = (view: ViewMode) => {
+    if (view === "movies") {
+      setSelectedMovieId(null);
+    }
     setCurrentView(view);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
