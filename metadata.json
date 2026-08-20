@@ -1,6 +1,0 @@
-{
-  "name": "Movies App",
-  "description": "Your Personal Cinema Archive - browse, add, edit, and curate your movie collection.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
