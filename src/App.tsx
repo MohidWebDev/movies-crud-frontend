@@ -8,27 +8,14 @@ import { MovieDetails } from "./components/MovieDetails";
 import { AddMovieForm } from "./components/AddMovieForm";
 import { EditMovieForm } from "./components/EditMovieForm";
 import { DeleteModal } from "./components/DeleteModal";
-import { INITIAL_MOVIES } from "./data/initialMovies";
 import { Movie, ViewMode, ToastNotification } from "./types";
+import { getAllMovies } from "./services/movieApi";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
-const STORAGE_KEY = "movies_app_collection_v1";
-
 export default function App() {
-  const [movies, setMovies] = useState<Movie[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch {
-      // Fallback
-    }
-    return INITIAL_MOVIES;
-  });
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [currentView, setCurrentView] = useState<ViewMode>("home");
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
@@ -36,14 +23,24 @@ export default function App() {
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
 
-  // Persist movies to localStorage whenever changed
+  // Fetch movies from the backend on initial load
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(movies));
-    } catch {
-      // Ignore quota errors
-    }
-  }, [movies]);
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getAllMovies();
+        setMovies(data);
+        setLoadError(null);
+      } catch (err) {
+        setLoadError(
+          err instanceof Error ? err.message : "Failed to load movies",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMovies();
+  }, []);
 
   const showToast = (
     message: string,
@@ -152,6 +149,8 @@ export default function App() {
             <motion.div key="movies" {...pageTransition}>
               <MovieGrid
                 movies={movies}
+                isLoading={isLoading}
+                error={loadError}
                 onSelectMovie={handleSelectMovie}
                 onEditMovie={handleStartEdit}
                 onDeleteMovie={handlePromptDelete}
