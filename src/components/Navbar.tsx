@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X } from "lucide-react";
@@ -30,13 +30,32 @@ export const Navbar: React.FC = () => {
     setMobileMenuOpen(false);
   };
 
+  const navRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
+
+  useEffect(() => {
+    const activeItem = navItems.find((item) => isItemActive(item.path));
+    if (!activeItem || !navRef.current) return;
+
+    const el = itemRefs.current[activeItem.path];
+    if (!el) return;
+
+    const navRect = navRef.current.getBoundingClientRect();
+    const itemRect = el.getBoundingClientRect();
+
+    setUnderlineStyle({
+      left: itemRect.left - navRect.left,
+      width: itemRect.width,
+    });
+  }, [location.pathname]);
+
   return (
     <header
       id="main-header"
       className="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0A0A0A]/90 border-b border-zinc-800/80 transition-colors"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Brand Text */}
         <Link
           id="brand-logo-btn"
           to="/"
@@ -47,8 +66,11 @@ export const Navbar: React.FC = () => {
           </span>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav id="desktop-nav" className="hidden md:flex items-center gap-8">
+        <nav
+          id="desktop-nav"
+          ref={navRef}
+          className="hidden md:flex items-center gap-8 relative"
+        >
           {navItems.map((item) => {
             const isActive = isItemActive(item.path);
 
@@ -57,25 +79,26 @@ export const Navbar: React.FC = () => {
                 key={item.path}
                 id={`nav-link-${item.path.replace("/", "") || "home"}`}
                 to={item.path}
+                ref={(el) => {
+                  itemRefs.current[item.path] = el;
+                }}
                 className={`relative py-2 text-sm font-semibold transition-colors duration-200 focus:outline-none cursor-pointer ${
                   isActive ? "text-white" : "text-zinc-400 hover:text-zinc-100"
                 }`}
               >
                 <span>{item.label}</span>
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-underline"
-                    id="active-nav-indicator"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#E50914] rounded-full shadow-[0_0_10px_rgba(229,9,20,0.8)]"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
               </Link>
             );
           })}
+
+          <motion.div
+            id="active-nav-indicator"
+            animate={{ left: underlineStyle.left, width: underlineStyle.width }}
+            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            className="absolute -bottom-1 h-0.5 bg-[#E50914] rounded-full shadow-[0_0_10px_rgba(229,9,20,0.8)]"
+          />
         </nav>
 
-        {/* Mobile Hamburger */}
         <div className="flex md:hidden items-center">
           <button
             id="mobile-menu-toggle"
@@ -92,7 +115,6 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
