@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useParams } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -74,10 +80,12 @@ const EditMovieRoute: React.FC<EditMovieRouteProps> = ({
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [editOrigin, setEditOrigin] = useState<string>("/movies");
 
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
@@ -117,6 +125,7 @@ export default function App() {
   };
 
   const handleStartEdit = (movie: Movie) => {
+    setEditOrigin(location.pathname);
     navigate(`/edit/${movie.id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -198,7 +207,7 @@ export default function App() {
       setMovies(refreshed);
 
       showToast(`"${updatedData.title}" updated successfully!`, "success");
-      navigate(`/movies/${id}`);
+      navigate(editOrigin);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       showToast(
