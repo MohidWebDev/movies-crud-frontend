@@ -196,10 +196,10 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
                 variants={itemVariants}
                 id={`movie-card-${movie.id}`}
                 onClick={() => onSelectMovie(movie)}
-                className="group relative flex flex-col bg-[#121212] rounded-2xl border border-zinc-800/90 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#E50914]/40 hover:shadow-[0_8px_25px_rgba(229,9,20,0.12)]"
+                className="group relative flex flex-col min-w-0 bg-[#121212] rounded-2xl border border-zinc-800/90 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#E50914]/40 hover:shadow-[0_8px_25px_rgba(229,9,20,0.12)]"
               >
                 {/* Poster Area with rating badge */}
-                <div className="relative aspect-3/4 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                <div className="relative aspect-3/4 w-full min-w-0 bg-zinc-900 overflow-hidden flex items-center justify-center">
                   {hasValidImage ? (
                     <img
                       src={movie.posterUrl}
