@@ -221,7 +221,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-[#0A0A0A] text-white selection:bg-[#E50914] selection:text-white font-sans">
       <Navbar />
 
-      <main className="flex-1 flex flex-col min-h-0 min-w-0">
+      <main className="flex-1 flex flex-col min-h-0 min-w-0 w-full">
         <Routes>
           <Route
             path="/"
