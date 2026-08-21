@@ -91,7 +91,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
   return (
     <div
       id="movie-grid-section"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-w-0"
     >
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-zinc-800">
@@ -181,7 +181,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-4"
+          className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 pt-4"
         >
           {filteredMovies.map((movie) => {
             const hasValidImage = movie.posterUrl && !imageErrors[movie.id];
