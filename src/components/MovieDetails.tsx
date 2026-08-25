@@ -3,6 +3,10 @@ import { motion } from "motion/react";
 import { ArrowLeft, Edit3, Trash2, Calendar, User, Film } from "lucide-react";
 import { Movie } from "../types";
 import { getMovieById } from "../services/movieApi";
+import { Review } from "../types";
+import { getReviewsForMovie } from "../services/reviewApi";
+import { AddReviewForm } from "./AddReviewForm";
+import { ReviewList } from "./ReviewList";
 
 interface MovieDetailsProps {
   movieId: string;
@@ -19,7 +23,10 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
 }) => {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
@@ -39,6 +46,28 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
     };
     fetchMovie();
   }, [movieId]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setReviewsLoading(true);
+        setReviewsError(null);
+        const data = await getReviewsForMovie(movieId);
+        setReviews(data);
+      } catch (err) {
+        setReviewsError(
+          err instanceof Error ? err.message : "Failed to load reviews",
+        );
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [movieId]);
+
+  const handleReviewAdded = (newReview: Review) => {
+    setReviews((prev) => [newReview, ...prev]);
+  };
 
   if (isLoading) {
     return (
@@ -160,6 +189,15 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
             <span>Delete</span>
           </motion.button>
         </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto mt-4 space-y-6">
+        <AddReviewForm movieId={movieId} onReviewAdded={handleReviewAdded} />
+        <ReviewList
+          reviews={reviews}
+          isLoading={reviewsLoading}
+          error={reviewsError}
+        />
       </div>
     </div>
   );
