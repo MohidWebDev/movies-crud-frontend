@@ -16,6 +16,20 @@ interface BackendMovie {
   };
 }
 
+interface GetMoviesParams {
+  page?: number;
+  limit?: number;
+  genre?: string;
+  sort?: "year";
+}
+
+interface PaginatedMovies {
+  data: Movie[];
+  page: number;
+  totalPages: number;
+  totalCount: number;
+}
+
 // Converts a backend movie object into the shape our frontend expects
 const normalizeMovie = (movie: BackendMovie): Movie => ({
   id: movie._id,
@@ -35,10 +49,25 @@ const handleResponse = async (res: Response) => {
   return res.json();
 };
 
-export const getAllMovies = async (): Promise<Movie[]> => {
-  const res = await fetch(MOVIES_URL);
-  const data: BackendMovie[] = await handleResponse(res);
-  return data.map(normalizeMovie);
+export const getAllMovies = async (
+  params: GetMoviesParams = {},
+): Promise<PaginatedMovies> => {
+  const searchParams = new URLSearchParams();
+  if (params.page) searchParams.set("page", String(params.page));
+  if (params.limit) searchParams.set("limit", String(params.limit));
+  if (params.genre) searchParams.set("genre", params.genre);
+  if (params.sort) searchParams.set("sort", params.sort);
+
+  const query = searchParams.toString();
+  const res = await fetch(`${MOVIES_URL}${query ? `?${query}` : ""}`);
+  const result = await handleResponse(res);
+
+  return {
+    data: result.data.map(normalizeMovie),
+    page: result.page,
+    totalPages: result.totalPages,
+    totalCount: result.totalCount,
+  };
 };
 
 export const getMovieById = async (id: string): Promise<Movie> => {
