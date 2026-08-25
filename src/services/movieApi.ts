@@ -22,7 +22,7 @@ const normalizeMovie = (movie: BackendMovie): Movie => ({
   title: movie.title,
   director: movie.director,
   year: movie.year,
-  genre: movie.genre.join(", "),
+  genre: Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre,
   posterUrl: movie.poster?.url,
 });
 
