@@ -2,6 +2,18 @@ import React, { useState } from "react";
 import { motion } from "motion/react";
 import { UploadCloud, X, ArrowLeft } from "lucide-react";
 
+const GENRES = [
+  "Action",
+  "Comedy",
+  "Drama",
+  "Sci-Fi",
+  "Horror",
+  "Romance",
+  "Documentary",
+  "Thriller",
+  "Animation",
+];
+
 interface AddMovieFormProps {
   onAddMovie: (
     movie: { title: string; director: string; year: number; genre: string },
@@ -200,15 +212,22 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
               <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
                 Genre *
               </label>
-              <input
+              <select
                 id="input-genre"
-                type="text"
                 required
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
-                placeholder="e.g. Drama, Sci-Fi"
-                className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-[#E50914]"
-              />
+                className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white text-sm focus:outline-none focus:border-[#E50914] focus:ring-2 focus:ring-[#E50914]/20"
+              >
+                <option value="" disabled>
+                  Select a genre
+                </option>
+                {GENRES.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

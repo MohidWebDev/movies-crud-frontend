@@ -2,6 +2,18 @@ import React, { useState } from "react";
 import { ArrowLeft, Film, UploadCloud } from "lucide-react";
 import { Movie } from "../types";
 
+const GENRES = [
+  "Action",
+  "Comedy",
+  "Drama",
+  "Sci-Fi",
+  "Horror",
+  "Romance",
+  "Documentary",
+  "Thriller",
+  "Animation",
+];
+
 interface EditMovieFormProps {
   movie: Movie;
   onUpdateMovie: (
@@ -164,14 +176,19 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
                 <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
                   Genre
                 </label>
-                <input
+                <select
                   id="edit-input-genre"
-                  type="text"
                   required
                   value={genre}
                   onChange={(e) => setGenre(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white text-sm focus:outline-none focus:border-[#E50914] transition-all"
-                />
+                >
+                  {GENRES.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
