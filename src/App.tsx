@@ -17,7 +17,7 @@ import { EditMovieForm } from "./components/EditMovieForm";
 import { DeleteModal } from "./components/DeleteModal";
 import { Movie, ToastNotification } from "./types";
 import {
-  getAllMovies,
+  getMovieById,
   createMovie,
   uploadPoster,
   updateMovie,
@@ -28,8 +28,6 @@ import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 // Small wrapper so EditMovieForm can be reached as a route,
 // looking up the movie by the :id URL param.
 interface EditMovieRouteProps {
-  movies: Movie[];
-  isLoading: boolean;
   onUpdateMovie: (
     id: string,
     updated: { title: string; director: string; year: number; genre: string },
@@ -37,14 +35,29 @@ interface EditMovieRouteProps {
   ) => Promise<void>;
 }
 
-const EditMovieRoute: React.FC<EditMovieRouteProps> = ({
-  movies,
-  isLoading,
-  onUpdateMovie,
-}) => {
+const EditMovieRoute: React.FC<EditMovieRouteProps> = ({ onUpdateMovie }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const movie = movies.find((m) => m.id === id);
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchMovie = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getMovieById(id);
+        setMovie(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Movie not found");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMovie();
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -55,7 +68,7 @@ const EditMovieRoute: React.FC<EditMovieRouteProps> = ({
     );
   }
 
-  if (!movie) {
+  if (error || !movie) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-24 text-center">
         <p className="text-red-400 font-semibold mb-1">Movie not found</p>
@@ -82,31 +95,10 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [editOrigin, setEditOrigin] = useState<string>("/movies");
 
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
-
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getAllMovies();
-        setMovies(data);
-        setLoadError(null);
-      } catch (err) {
-        setLoadError(
-          err instanceof Error ? err.message : "Failed to load movies",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMovies();
-  }, []);
 
   const showToast = (
     message: string,
@@ -140,9 +132,6 @@ export default function App() {
     try {
       await deleteMovie(movieToDelete.id);
 
-      const refreshed = await getAllMovies();
-      setMovies(refreshed);
-
       showToast(`"${movieToDelete.title}" removed from archive`, "info");
       navigate("/movies");
 
@@ -172,9 +161,6 @@ export default function App() {
         await uploadPoster(newMovie.id, posterFile);
       }
 
-      const refreshed = await getAllMovies();
-      setMovies(refreshed);
-
       showToast(`"${newMovie.title}" added to your archive!`, "success");
       navigate("/movies");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -203,9 +189,6 @@ export default function App() {
         await uploadPoster(id, posterFile);
       }
 
-      const refreshed = await getAllMovies();
-      setMovies(refreshed);
-
       showToast(`"${updatedData.title}" updated successfully!`, "success");
       navigate(editOrigin);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -232,9 +215,6 @@ export default function App() {
             path="/movies"
             element={
               <MovieGrid
-                movies={movies}
-                isLoading={isLoading}
-                error={loadError}
                 onSelectMovie={handleSelectMovie}
                 onEditMovie={handleStartEdit}
                 onDeleteMovie={handlePromptDelete}
@@ -265,13 +245,7 @@ export default function App() {
 
           <Route
             path="/edit/:id"
-            element={
-              <EditMovieRoute
-                movies={movies}
-                isLoading={isLoading}
-                onUpdateMovie={handleUpdateMovie}
-              />
-            }
+            element={<EditMovieRoute onUpdateMovie={handleUpdateMovie} />}
           />
         </Routes>
       </main>
