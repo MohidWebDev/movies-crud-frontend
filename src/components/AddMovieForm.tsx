@@ -29,7 +29,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
   const [title, setTitle] = useState("");
   const [director, setDirector] = useState("");
   const [year, setYear] = useState("");
-  const [genre, setGenre] = useState("");
+  const [genre, setGenre] = useState<string[]>([]);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState("");
   const [dragOver, setDragOver] = useState(false);
@@ -47,6 +47,12 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
     reader.readAsDataURL(file);
   };
 
+  const toggleGenre = (g: string) => {
+    setGenre((prev) =>
+      prev.includes(g) ? prev.filter((item) => item !== g) : [...prev, g],
+    );
+  };
+
   const handleRemovePoster = () => {
     setPosterFile(null);
     setPosterPreview("");
@@ -54,7 +60,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !director.trim() || !year.trim() || !genre.trim())
+    if (!title.trim() || !director.trim() || !year.trim() || genre.length === 0)
       return;
 
     setIsSubmitting(true);
@@ -64,7 +70,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
           title: title.trim(),
           director: director.trim(),
           year: Number(year),
-          genre: genre.trim(),
+          genre: genre.join(","),
         },
         posterFile,
       );
@@ -207,27 +213,27 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
                 className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-[#E50914]"
               />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
-                Genre *
-              </label>
-              <select
-                id="input-genre"
-                required
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white text-sm focus:outline-none focus:border-[#E50914] focus:ring-2 focus:ring-[#E50914]/20"
-              >
-                <option value="" disabled>
-                  Select a genre
-                </option>
-                {GENRES.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
+          <div>
+            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
+              Genre * (select one or more)
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {GENRES.map((g) => (
+                <label
+                  key={g}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#181818] border border-zinc-800 text-sm text-zinc-300 cursor-pointer hover:border-zinc-700"
+                >
+                  <input
+                    type="checkbox"
+                    checked={genre.includes(g)}
+                    onChange={() => toggleGenre(g)}
+                    className="accent-[#E50914]"
+                  />
+                  {g}
+                </label>
+              ))}
             </div>
           </div>
 

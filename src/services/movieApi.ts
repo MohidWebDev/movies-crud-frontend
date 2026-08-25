@@ -9,7 +9,7 @@ interface BackendMovie {
   title: string;
   director: string;
   year: number;
-  genre: string;
+  genre: string[];
   poster?: {
     url: string;
     publicId: string;
@@ -22,7 +22,7 @@ const normalizeMovie = (movie: BackendMovie): Movie => ({
   title: movie.title,
   director: movie.director,
   year: movie.year,
-  genre: movie.genre,
+  genre: movie.genre.join(", "),
   posterUrl: movie.poster?.url,
 });
 
@@ -50,10 +50,17 @@ export const getMovieById = async (id: string): Promise<Movie> => {
 export const createMovie = async (
   movie: Omit<Movie, "id" | "posterUrl">,
 ): Promise<Movie> => {
+  const payload = {
+    ...movie,
+    genre: movie.genre
+      .split(",")
+      .map((g) => g.trim())
+      .filter(Boolean),
+  };
   const res = await fetch(MOVIES_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(movie),
+    body: JSON.stringify(payload),
   });
   const data: BackendMovie = await handleResponse(res);
   return normalizeMovie(data);
@@ -63,10 +70,17 @@ export const updateMovie = async (
   id: string,
   movie: Omit<Movie, "id" | "posterUrl">,
 ): Promise<Movie> => {
+  const payload = {
+    ...movie,
+    genre: movie.genre
+      .split(",")
+      .map((g) => g.trim())
+      .filter(Boolean),
+  };
   const res = await fetch(`${MOVIES_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(movie),
+    body: JSON.stringify(payload),
   });
   const data: BackendMovie = await handleResponse(res);
   return normalizeMovie(data);
