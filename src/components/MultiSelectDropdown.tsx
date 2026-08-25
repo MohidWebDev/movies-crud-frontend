@@ -91,7 +91,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-sm focus:outline-none focus:border-[#E50914] focus:ring-2 focus:ring-[#E50914]/20"
+        className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-sm focus:outline-none focus:border-[#E50914] focus:ring-2 focus:ring-[#E50914]/20 cursor-pointer"
       >
         <span
           className={selected.length === 0 ? "text-zinc-600" : "text-white"}
@@ -108,7 +108,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       {isOpen && (
         <div
           role="listbox"
-          className="absolute z-10 mt-2 w-full rounded-xl bg-[#181818] border border-zinc-800 shadow-xl max-h-60 overflow-y-auto"
+          className="absolute z-10 mt-2 w-full rounded-xl bg-[#181818] border border-zinc-800 shadow-xl max-h-40 overflow-y-auto"
         >
           {options.map((option) => {
             const isChecked = selected.includes(option);

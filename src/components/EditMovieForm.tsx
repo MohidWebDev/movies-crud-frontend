@@ -5,14 +5,24 @@ import { MultiSelectDropdown } from "./MultiSelectDropdown";
 
 const GENRES = [
   "Action",
-  "Comedy",
-  "Drama",
-  "Sci-Fi",
-  "Horror",
-  "Romance",
-  "Documentary",
-  "Thriller",
+  "Adventure",
   "Animation",
+  "Comedy",
+  "Crime",
+  "Documentary",
+  "Drama",
+  "Family",
+  "Fantasy",
+  "Historical",
+  "Horror",
+  "Musical",
+  "Mystery",
+  "Romance",
+  "Sci-Fi",
+  "Sports",
+  "Thriller",
+  "War",
+  "Western",
 ];
 
 interface EditMovieFormProps {

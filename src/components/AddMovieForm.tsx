@@ -5,14 +5,24 @@ import { MultiSelectDropdown } from "./MultiSelectDropdown";
 
 const GENRES = [
   "Action",
-  "Comedy",
-  "Drama",
-  "Sci-Fi",
-  "Horror",
-  "Romance",
-  "Documentary",
-  "Thriller",
+  "Adventure",
   "Animation",
+  "Comedy",
+  "Crime",
+  "Documentary",
+  "Drama",
+  "Family",
+  "Fantasy",
+  "Historical",
+  "Horror",
+  "Musical",
+  "Mystery",
+  "Romance",
+  "Sci-Fi",
+  "Sports",
+  "Thriller",
+  "War",
+  "Western",
 ];
 
 interface AddMovieFormProps {
@@ -208,16 +218,16 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
                 className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-[#E50914]"
               />
             </div>
-          </div>
 
-          <MultiSelectDropdown
-            label="Genre"
-            options={GENRES}
-            selected={genre}
-            onChange={setGenre}
-            maxSelected={5}
-            required
-          />
+            <MultiSelectDropdown
+              label="Genre"
+              options={GENRES}
+              selected={genre}
+              onChange={setGenre}
+              maxSelected={5}
+              required
+            />
+          </div>
 
           <motion.button
             id="submit-add-movie-btn"
