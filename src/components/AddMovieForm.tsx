@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { UploadCloud, X, ArrowLeft } from "lucide-react";
+import { MultiSelectDropdown } from "./MultiSelectDropdown";
 
 const GENRES = [
   "Action",
@@ -45,12 +46,6 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  const toggleGenre = (g: string) => {
-    setGenre((prev) =>
-      prev.includes(g) ? prev.filter((item) => item !== g) : [...prev, g],
-    );
   };
 
   const handleRemovePoster = () => {
@@ -215,27 +210,14 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
-              Genre * (select one or more)
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {GENRES.map((g) => (
-                <label
-                  key={g}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#181818] border border-zinc-800 text-sm text-zinc-300 cursor-pointer hover:border-zinc-700"
-                >
-                  <input
-                    type="checkbox"
-                    checked={genre.includes(g)}
-                    onChange={() => toggleGenre(g)}
-                    className="accent-[#E50914]"
-                  />
-                  {g}
-                </label>
-              ))}
-            </div>
-          </div>
+          <MultiSelectDropdown
+            label="Genre"
+            options={GENRES}
+            selected={genre}
+            onChange={setGenre}
+            maxSelected={5}
+            required
+          />
 
           <motion.button
             id="submit-add-movie-btn"
