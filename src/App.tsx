@@ -35,8 +35,6 @@ interface EditMovieRouteProps {
   ) => Promise<void>;
 }
 
-const [refreshKey, setRefreshKey] = useState(0);
-
 const EditMovieRoute: React.FC<EditMovieRouteProps> = ({ onUpdateMovie }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -98,6 +96,7 @@ export default function App() {
   const location = useLocation();
 
   const [editOrigin, setEditOrigin] = useState<string>("/movies");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
@@ -218,6 +217,7 @@ export default function App() {
             path="/movies"
             element={
               <MovieGrid
+                key={refreshKey}
                 onSelectMovie={handleSelectMovie}
                 onEditMovie={handleStartEdit}
                 onDeleteMovie={handlePromptDelete}
