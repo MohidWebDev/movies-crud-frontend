@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "motion/react";
-import { Search, Film, Edit3, Trash2, Plus, X, Filter } from "lucide-react";
+import { Search, Film, Edit3, Trash2, Plus, X } from "lucide-react";
 import { Movie } from "../types";
 import { getAllMovies } from "../services/movieApi";
+import { SingleSelectDropdown } from "./SingleSelectDropdown";
 
 interface MovieGridProps {
   onSelectMovie: (movie: Movie) => void;
@@ -194,28 +195,15 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
         </div>
       </div>
 
-      {/* Genre Filter Pills */}
-      {allGenres.length > 2 && (
-        <div className="flex items-center gap-2 overflow-x-auto py-4 scrollbar-none">
-          <div className="text-zinc-500 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 pr-2">
-            <Filter className="w-3.5 h-3.5" />
-            <span>Filter:</span>
-          </div>
-          {allGenres.map((genre) => (
-            <button
-              key={genre}
-              onClick={() => handleGenreSelect(genre)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none select-none border ${
-                selectedGenre === genre
-                  ? "border-transparent bg-[#E50914] text-white shadow-[0_0_12px_rgba(229,9,20,0.5)]"
-                  : "border-zinc-800 bg-[#181818] text-zinc-400 hover:text-white hover:bg-zinc-800"
-              }`}
-            >
-              {genre}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Genre Filter Dropdown */}
+      <div className="py-4 max-w-xs">
+        <SingleSelectDropdown
+          label="Filter by Genre"
+          options={allGenres}
+          selected={selectedGenre}
+          onChange={handleGenreSelect}
+        />
+      </div>
 
       {/* Movie Cards 4-Column Grid */}
       {isLoading ? (
