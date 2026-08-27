@@ -44,7 +44,7 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 bg-[#121212] border border-zinc-800 rounded-2xl p-6"
+      className="w-full space-y-4 bg-[#121212] border border-zinc-800 rounded-2xl p-6"
     >
       <h3 className="text-lg font-bold text-white">Write a Review</h3>
 

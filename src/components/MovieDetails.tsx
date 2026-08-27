@@ -101,7 +101,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
   return (
     <div
       id="movie-details-section"
-      className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
+      className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
     >
       {/* Back button */}
       <button
@@ -191,7 +191,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto mt-4 space-y-6">
+      <div className="w-full max-w-2xl mx-auto mt-4 space-y-6">
         <AddReviewForm movieId={movieId} onReviewAdded={handleReviewAdded} />
         <ReviewList
           reviews={reviews}
