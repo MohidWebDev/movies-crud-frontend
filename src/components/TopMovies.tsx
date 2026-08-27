@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
 import { Star, TrendingUp, Film } from "lucide-react";
 import { getMovieStats, TopMovie } from "../services/movieApi";
 
@@ -34,6 +35,28 @@ export const TopMovies: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+  } as const;
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10">
       <h2 className="flex items-center justify-center gap-2 text-2xl font-bold text-white mb-6">
@@ -41,10 +64,16 @@ export const TopMovies: React.FC = () => {
         Top Rated Movies
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
+      >
         {movies.map((movie) => (
-          <div
+          <motion.div
             key={movie._id}
+            variants={itemVariants}
             onClick={() => handleSelectMovie(movie._id)}
             className="group bg-[#121212] rounded-xl border border-zinc-800/90 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#E50914]/40 hover:shadow-[0_8px_25px_rgba(229,9,20,0.12)]"
           >
@@ -72,9 +101,9 @@ export const TopMovies: React.FC = () => {
                 {movie.reviewCount} review{movie.reviewCount !== 1 ? "s" : ""}
               </p>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };
