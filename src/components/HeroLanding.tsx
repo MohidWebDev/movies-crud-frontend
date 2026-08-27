@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Sparkles, ArrowRight } from "lucide-react";
-import { TopGenres } from "./TopGenres";
+import { TopMovies } from "./TopMovies";
 
 interface HeroLandingProps {
   onViewMovies: () => void;
@@ -93,7 +93,7 @@ export const HeroLanding: React.FC<HeroLandingProps> = ({ onViewMovies }) => {
         </div>
       </motion.div>
 
-      <TopGenres />
+      <TopMovies />
     </div>
   );
 };

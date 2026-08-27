@@ -30,10 +30,16 @@ interface PaginatedMovies {
   totalCount: number;
 }
 
-export interface GenreStats {
-  genre: string;
+export interface TopMovie {
+  _id: string;
+  title: string;
+  year: number;
+  poster?: {
+    url: string;
+    publicId: string;
+  };
   averageRating: number;
-  ratedMovieCount: number;
+  reviewCount: number;
 }
 
 // Converts a backend movie object into the shape our frontend expects
@@ -76,7 +82,7 @@ export const getAllMovies = async (
   };
 };
 
-export const getMovieStats = async (): Promise<GenreStats[]> => {
+export const getMovieStats = async (): Promise<TopMovie[]> => {
   const res = await fetch(`${MOVIES_URL}/stats`);
   return handleResponse(res);
 };
