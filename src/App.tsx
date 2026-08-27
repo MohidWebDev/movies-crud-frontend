@@ -35,6 +35,8 @@ interface EditMovieRouteProps {
   ) => Promise<void>;
 }
 
+const [refreshKey, setRefreshKey] = useState(0);
+
 const EditMovieRoute: React.FC<EditMovieRouteProps> = ({ onUpdateMovie }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -132,6 +134,7 @@ export default function App() {
     try {
       await deleteMovie(movieToDelete.id);
 
+      setRefreshKey((k) => k + 1);
       showToast(`"${movieToDelete.title}" removed from archive`, "info");
       navigate("/movies");
 

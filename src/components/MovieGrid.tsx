@@ -1,12 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "motion/react";
 import { Search, Film, Edit3, Trash2, Plus, X, Filter } from "lucide-react";
 import { Movie } from "../types";
+import { getAllMovies } from "../services/movieApi";
 
 interface MovieGridProps {
-  movies: Movie[];
-  isLoading?: boolean;
-  error?: string | null;
   onSelectMovie: (movie: Movie) => void;
   onEditMovie: (movie: Movie) => void;
   onDeleteMovie: (movie: Movie) => void;
@@ -14,53 +12,98 @@ interface MovieGridProps {
 }
 
 export const MovieGrid: React.FC<MovieGridProps> = ({
-  movies,
-  isLoading = false,
-  error = null,
   onSelectMovie,
   onEditMovie,
   onDeleteMovie,
   onAddMovie,
 }) => {
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState<string>("ALL");
+  const [sortByYear, setSortByYear] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
-  // Extract all distinct genres across the movie collection
-  const allGenres = useMemo(() => {
-    const genreSet = new Set<string>();
-    movies.forEach((m) => {
-      m.genre
-        .split(",")
-        .map((s) => s.trim().toUpperCase())
-        .filter(Boolean)
-        .forEach((g) => genreSet.add(g));
-    });
-    return ["ALL", ...Array.from(genreSet)];
-  }, [movies]);
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const result = await getAllMovies({
+          page,
+          genre: selectedGenre === "ALL" ? undefined : selectedGenre,
+          sort: sortByYear ? "year" : undefined,
+        });
+        setMovies(result.data);
+        setTotalPages(result.totalPages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load movies");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMovies();
+  }, [page, selectedGenre, sortByYear]);
+
+  const handleGenreSelect = (genre: string) => {
+    setSelectedGenre(genre);
+    setPage(1);
+  };
+
+  const handleToggleSort = () => {
+    setSortByYear((prev) => !prev);
+    setPage(1);
+  };
+
+  const handlePrevPage = () => {
+    setPage((p) => Math.max(p - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setPage((p) => Math.min(p + 1, totalPages));
+  };
+
+  // Fixed genre list — must match the backend's enum (models/movieModel.js)
+  const GENRES = [
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Family",
+    "Fantasy",
+    "Historical",
+    "Horror",
+    "Musical",
+    "Mystery",
+    "Romance",
+    "Sci-Fi",
+    "Sports",
+    "Thriller",
+    "War",
+    "Western",
+  ];
+  const allGenres = ["ALL", ...GENRES];
 
   // Filter movies dynamically based on search query and selected genre
   const filteredMovies = useMemo(() => {
     return movies.filter((movie) => {
       const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
+      return (
         !q ||
         movie.title.toLowerCase().includes(q) ||
         movie.director.toLowerCase().includes(q) ||
         movie.genre.toLowerCase().includes(q) ||
-        movie.year.toString().includes(q);
-
-      if (!matchesSearch) return false;
-
-      if (selectedGenre === "ALL") return true;
-
-      const movieGenres = movie.genre
-        .split(",")
-        .map((s) => s.trim().toUpperCase());
-
-      return movieGenres.includes(selectedGenre);
+        movie.year.toString().includes(q)
+      );
     });
-  }, [movies, searchQuery, selectedGenre]);
+  }, [movies, searchQuery]);
 
   const handleImageError = (id: string) => {
     setImageErrors((prev) => ({ ...prev, [id]: true }));
@@ -130,6 +173,17 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
           </div>
 
           <button
+            onClick={handleToggleSort}
+            className={`hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap cursor-pointer border ${
+              sortByYear
+                ? "border-transparent bg-[#E50914] text-white shadow-[0_0_12px_rgba(229,9,20,0.5)]"
+                : "border-zinc-800 bg-[#181818] text-zinc-400 hover:text-white hover:bg-zinc-800"
+            }`}
+          >
+            Sort by Year
+          </button>
+
+          <button
             id="grid-add-new-btn"
             onClick={onAddMovie}
             className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white text-sm font-semibold shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all hover:scale-102 active:scale-98 whitespace-nowrap cursor-pointer"
@@ -150,7 +204,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
           {allGenres.map((genre) => (
             <button
               key={genre}
-              onClick={() => setSelectedGenre(genre)}
+              onClick={() => handleGenreSelect(genre)}
               className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none select-none border ${
                 selectedGenre === genre
                   ? "border-transparent bg-[#E50914] text-white shadow-[0_0_12px_rgba(229,9,20,0.5)]"
@@ -296,6 +350,29 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
             {searchQuery ? "Clear Search" : "Add First Movie"}
           </button>
         </motion.div>
+      )}
+
+      {/* Pagination Controls */}
+      {!isLoading && !error && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 pt-10">
+          <button
+            onClick={handlePrevPage}
+            disabled={page === 1}
+            className="px-4 py-2 rounded-xl bg-[#181818] border border-zinc-800 text-sm text-zinc-300 hover:bg-[#232323] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-zinc-400">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={page === totalPages}
+            className="px-4 py-2 rounded-xl bg-[#181818] border border-zinc-800 text-sm text-zinc-300 hover:bg-[#232323] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
   );
