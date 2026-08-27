@@ -93,7 +93,9 @@ export const HeroLanding: React.FC<HeroLandingProps> = ({ onViewMovies }) => {
         </div>
       </motion.div>
 
-      <TopMovies />
+      <div className="mt-10">
+        <TopMovies />
+      </div>
     </div>
   );
 };
