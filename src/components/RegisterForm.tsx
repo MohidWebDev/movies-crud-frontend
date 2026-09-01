@@ -28,7 +28,7 @@ export const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-16">
+    <div className="max-w-md lg:max-w-xl mx-auto px-4 py-16">
       <div className="bg-[#121212] border border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-white tracking-tight font-display">
