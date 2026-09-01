@@ -41,7 +41,7 @@ export const getReviewsForMovie = async (
 
 export const createReview = async (
   movieId: string,
-  review: Omit<Review, "id" | "movieId" | "createdAt">,
+  review: Omit<Review, "id" | "movieId" | "createdAt" | "reviewerName">,
 ): Promise<Review> => {
   const res = await authFetch(`${MOVIES_URL}/${movieId}/reviews`, {
     method: "POST",
@@ -54,7 +54,7 @@ export const createReview = async (
 
 export const updateReview = async (
   id: string,
-  review: Omit<Review, "id" | "movieId" | "createdAt">,
+  review: Omit<Review, "id" | "movieId" | "createdAt" | "reviewerName">,
 ): Promise<Review> => {
   const res = await authFetch(`${REVIEWS_URL}/${id}`, {
     method: "PATCH",
