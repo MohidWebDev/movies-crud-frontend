@@ -15,6 +15,9 @@ import { MovieDetails } from "./components/MovieDetails";
 import { AddMovieForm } from "./components/AddMovieForm";
 import { EditMovieForm } from "./components/EditMovieForm";
 import { DeleteModal } from "./components/DeleteModal";
+import { LoginForm } from "./components/LoginForm";
+import { RegisterForm } from "./components/RegisterForm";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Movie, ToastNotification } from "./types";
 import {
   getMovieById,
@@ -208,6 +211,10 @@ export default function App() {
 
       <main className="flex-1 flex flex-col min-h-0 min-w-0 w-full">
         <Routes>
+          <Route path="/login" element={<LoginForm />} />
+
+          <Route path="/register" element={<RegisterForm />} />
+
           <Route
             path="/"
             element={<HeroLanding onViewMovies={() => navigate("/movies")} />}
@@ -239,16 +246,22 @@ export default function App() {
           <Route
             path="/add"
             element={
-              <AddMovieForm
-                onAddMovie={handleAddMovie}
-                onCancel={() => navigate("/movies")}
-              />
+              <ProtectedRoute>
+                <AddMovieForm
+                  onAddMovie={handleAddMovie}
+                  onCancel={() => navigate("/movies")}
+                />
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/edit/:id"
-            element={<EditMovieRoute onUpdateMovie={handleUpdateMovie} />}
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <EditMovieRoute onUpdateMovie={handleUpdateMovie} />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </main>
