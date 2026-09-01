@@ -8,7 +8,7 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
 
   const navItems = [
     { path: "/", label: "Home" },
@@ -108,7 +108,7 @@ export const Navbar: React.FC = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          {user ? (
+          {isLoading ? null : user ? (
             <>
               <span className="text-sm text-zinc-400">
                 Hi,{" "}
@@ -189,7 +189,7 @@ export const Navbar: React.FC = () => {
               );
             })}
 
-            {user ? (
+            {isLoading ? null : user ? (
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white cursor-pointer"
