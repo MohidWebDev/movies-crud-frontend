@@ -1,17 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const navItems = [
     { path: "/", label: "Home" },
     { path: "/movies", label: "All Movies" },
-    { path: "/add", label: "Add Movie" },
+    ...(user ? [{ path: "/add", label: "Add Movie" }] : []),
   ];
 
   const isItemActive = (path: string) => {
@@ -28,6 +30,12 @@ export const Navbar: React.FC = () => {
   const handleNavClick = (path: string) => {
     navigate(path);
     setMobileMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setMobileMenuOpen(false);
+    navigate("/");
   };
 
   const navRef = useRef<HTMLDivElement>(null);
@@ -48,7 +56,7 @@ export const Navbar: React.FC = () => {
       left: itemRect.left - navRect.left,
       width: itemRect.width,
     });
-  }, [location.pathname]);
+  }, [location.pathname, user]);
 
   return (
     <header
@@ -99,6 +107,44 @@ export const Navbar: React.FC = () => {
           />
         </nav>
 
+        <div className="hidden md:flex items-center gap-4">
+          {user ? (
+            <>
+              <span className="text-sm text-zinc-400">
+                Hi,{" "}
+                <span className="text-white font-semibold">{user.name}</span>
+                {user.role === "admin" && (
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-[#E50914]/15 text-[#E50914] text-xs font-bold uppercase tracking-wider">
+                    Admin
+                  </span>
+                )}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700 text-sm font-semibold transition-all cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-semibold text-zinc-300 hover:text-white transition-colors cursor-pointer"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/register"
+                className="px-4 py-2 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white text-sm font-bold transition-all cursor-pointer"
+              >
+                Register
+              </Link>
+            </>
+          )}
+        </div>
+
         <div className="flex md:hidden items-center">
           <button
             id="mobile-menu-toggle"
@@ -142,6 +188,31 @@ export const Navbar: React.FC = () => {
                 </button>
               );
             })}
+
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout ({user.name})
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleNavClick("/login")}
+                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white cursor-pointer"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={() => handleNavClick("/register")}
+                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium bg-[#E50914]/15 text-[#E50914] border border-[#E50914]/30 cursor-pointer"
+                >
+                  Register
+                </button>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
