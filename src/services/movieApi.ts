@@ -1,4 +1,5 @@
 import { Movie } from "../types";
+import { authFetch } from "./apiClient";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 const MOVIES_URL = `${API_BASE_URL}/api/movies`;
@@ -103,7 +104,7 @@ export const createMovie = async (
       .map((g) => g.trim())
       .filter(Boolean),
   };
-  const res = await fetch(MOVIES_URL, {
+  const res = await authFetch(MOVIES_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -123,7 +124,7 @@ export const updateMovie = async (
       .map((g) => g.trim())
       .filter(Boolean),
   };
-  const res = await fetch(`${MOVIES_URL}/${id}`, {
+  const res = await authFetch(`${MOVIES_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -133,7 +134,7 @@ export const updateMovie = async (
 };
 
 export const deleteMovie = async (id: string): Promise<void> => {
-  const res = await fetch(`${MOVIES_URL}/${id}`, { method: "DELETE" });
+  const res = await authFetch(`${MOVIES_URL}/${id}`, { method: "DELETE" });
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({}));
     throw new Error(errorBody.message || "Failed to delete movie");
@@ -144,7 +145,7 @@ export const uploadPoster = async (id: string, file: File): Promise<Movie> => {
   const formData = new FormData();
   formData.append("poster", file);
 
-  const res = await fetch(`${MOVIES_URL}/${id}/poster`, {
+  const res = await authFetch(`${MOVIES_URL}/${id}/poster`, {
     method: "POST",
     body: formData, // no Content-Type header — browser sets it with boundary automatically
   });
