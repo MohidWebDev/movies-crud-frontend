@@ -7,6 +7,7 @@ import { Review } from "../types";
 import { getReviewsForMovie } from "../services/reviewApi";
 import { AddReviewForm } from "./AddReviewForm";
 import { ReviewList } from "./ReviewList";
+import { useAuth } from "../context/AuthContext";
 
 interface MovieDetailsProps {
   movieId: string;
@@ -28,6 +29,9 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
+
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -166,29 +170,31 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
-          <motion.button
-            id="details-edit-btn"
-            onClick={() => onEdit(movie)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(229,9,20,0.4)] flex items-center justify-center gap-2 transition-all cursor-pointer"
-          >
-            <Edit3 className="w-4 h-4" />
-            <span>Edit Details</span>
-          </motion.button>
+        {isAdmin && (
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
+            <motion.button
+              id="details-edit-btn"
+              onClick={() => onEdit(movie)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(229,9,20,0.4)] flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span>Edit Details</span>
+            </motion.button>
 
-          <motion.button
-            id="details-delete-btn"
-            onClick={() => onDelete(movie)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#1E1E1E] hover:bg-[#281517] hover:text-red-400 text-zinc-300 font-bold text-sm tracking-wide border border-zinc-800 hover:border-red-900/60 flex items-center justify-center gap-2 transition-all cursor-pointer"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>Delete</span>
-          </motion.button>
-        </div>
+            <motion.button
+              id="details-delete-btn"
+              onClick={() => onDelete(movie)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#1E1E1E] hover:bg-[#281517] hover:text-red-400 text-zinc-300 font-bold text-sm tracking-wide border border-zinc-800 hover:border-red-900/60 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete</span>
+            </motion.button>
+          </div>
+        )}
       </div>
 
       <div className="w-full max-w-2xl mx-auto mt-4 space-y-6">
