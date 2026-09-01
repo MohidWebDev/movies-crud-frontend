@@ -7,6 +7,10 @@ import React, {
 } from "react";
 import { User } from "../types";
 import * as authApi from "../services/authApi";
+import {
+  setAccessToken as setApiClientToken,
+  setTokenRefreshCallback,
+} from "../services/apiClient";
 
 interface AuthContextType {
   user: User | null;
@@ -34,6 +38,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         const { accessToken: newToken } = await authApi.refresh();
         const currentUser = await authApi.getMe(newToken);
         setAccessToken(newToken);
+        setApiClientToken(newToken);
         setUser(currentUser);
       } catch {
         // No valid refresh token — user is simply not logged in, not an error
@@ -46,12 +51,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     restoreSession();
   }, []);
 
+  useEffect(() => {
+    setTokenRefreshCallback((token) => setAccessToken(token));
+  }, []);
+
   const login = async (email: string, password: string) => {
     const { accessToken: newToken, user: loggedInUser } = await authApi.login({
       email,
       password,
     });
     setAccessToken(newToken);
+    setApiClientToken(newToken);
     setUser(loggedInUser);
   };
 
@@ -64,6 +74,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = async () => {
     await authApi.logout();
     setAccessToken(null);
+    setApiClientToken(null);
     setUser(null);
   };
 
