@@ -8,6 +8,7 @@ import { getReviewsForMovie } from "../services/reviewApi";
 import { AddReviewForm } from "./AddReviewForm";
 import { ReviewList } from "./ReviewList";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 interface MovieDetailsProps {
   movieId: string;
@@ -198,7 +199,19 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
       </div>
 
       <div className="w-full max-w-2xl mx-auto mt-4 space-y-6">
-        <AddReviewForm movieId={movieId} onReviewAdded={handleReviewAdded} />
+        {user ? (
+          <AddReviewForm movieId={movieId} onReviewAdded={handleReviewAdded} />
+        ) : (
+          <div className="bg-[#121212] border border-zinc-800 rounded-2xl p-6 text-center">
+            <p className="text-sm text-zinc-400">
+              Please{" "}
+              <Link to="/login" className="text-[#E50914] hover:underline">
+                log in
+              </Link>{" "}
+              to write a review.
+            </p>
+          </div>
+        )}
         <ReviewList
           reviews={reviews}
           isLoading={reviewsLoading}
