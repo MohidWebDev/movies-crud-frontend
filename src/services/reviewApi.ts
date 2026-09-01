@@ -1,4 +1,5 @@
 import { Review } from "../types";
+import { authFetch } from "./apiClient";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 const MOVIES_URL = `${API_BASE_URL}/api/movies`;
@@ -42,7 +43,7 @@ export const createReview = async (
   movieId: string,
   review: Omit<Review, "id" | "movieId" | "createdAt">,
 ): Promise<Review> => {
-  const res = await fetch(`${MOVIES_URL}/${movieId}/reviews`, {
+  const res = await authFetch(`${MOVIES_URL}/${movieId}/reviews`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(review),
@@ -55,7 +56,7 @@ export const updateReview = async (
   id: string,
   review: Omit<Review, "id" | "movieId" | "createdAt">,
 ): Promise<Review> => {
-  const res = await fetch(`${REVIEWS_URL}/${id}`, {
+  const res = await authFetch(`${REVIEWS_URL}/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(review),
@@ -65,7 +66,7 @@ export const updateReview = async (
 };
 
 export const deleteReview = async (id: string): Promise<void> => {
-  const res = await fetch(`${REVIEWS_URL}/${id}`, { method: "DELETE" });
+  const res = await authFetch(`${REVIEWS_URL}/${id}`, { method: "DELETE" });
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({}));
     throw new Error(errorBody.message || "Failed to delete review");
