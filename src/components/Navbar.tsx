@@ -112,7 +112,9 @@ export const Navbar: React.FC = () => {
             <>
               <span className="text-sm text-zinc-400">
                 Hi,{" "}
-                <span className="text-white font-semibold">{user.name}</span>
+                <span className="text-white font-semibold">
+                  {user.name.split(" ")[0]}
+                </span>
                 {user.role === "admin" && (
                   <span className="ml-2 px-2 py-0.5 rounded-full bg-[#E50914]/15 text-[#E50914] text-xs font-bold uppercase tracking-wider">
                     Admin
