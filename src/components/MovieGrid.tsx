@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Search, Film, Edit3, Trash2, Plus, X } from "lucide-react";
 import { Movie } from "../types";
@@ -26,6 +26,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
   const [totalPages, setTotalPages] = useState(1);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState<string>("ALL");
   const [sortByYear, setSortByYear] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
@@ -42,6 +43,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
           page,
           genre: selectedGenre === "ALL" ? undefined : selectedGenre,
           sort: sortByYear ? "year" : undefined,
+          search: debouncedSearchQuery || undefined,
         });
         setMovies(result.data);
         setTotalPages(result.totalPages);
@@ -52,7 +54,18 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
       }
     };
     fetchMovies();
-  }, [page, selectedGenre, sortByYear]);
+  }, [page, selectedGenre, sortByYear, debouncedSearchQuery]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery.trim());
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchQuery]);
 
   const handleGenreSelect = (genre: string) => {
     setSelectedGenre(genre);
@@ -95,20 +108,6 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
     "Western",
   ];
   const allGenres = ["ALL", ...GENRES];
-
-  // Filter movies dynamically based on search query and selected genre
-  const filteredMovies = useMemo(() => {
-    return movies.filter((movie) => {
-      const q = searchQuery.toLowerCase().trim();
-      return (
-        !q ||
-        movie.title.toLowerCase().includes(q) ||
-        movie.director.toLowerCase().includes(q) ||
-        movie.genre.toLowerCase().includes(q) ||
-        movie.year.toString().includes(q)
-      );
-    });
-  }, [movies, searchQuery]);
 
   const handleImageError = (id: string) => {
     setImageErrors((prev) => ({ ...prev, [id]: true }));
@@ -224,14 +223,14 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
           </p>
           <p className="text-sm text-zinc-400">{error}</p>
         </div>
-      ) : filteredMovies.length > 0 ? (
+      ) : movies.length > 0 ? (
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 pt-4"
         >
-          {filteredMovies.map((movie) => {
+          {movies.map((movie) => {
             const hasValidImage = movie.posterUrl && !imageErrors[movie.id];
             const parsedGenres = movie.genre
               .split(",")
