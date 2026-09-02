@@ -63,7 +63,7 @@ export const Navbar: React.FC = () => {
       id="main-header"
       className="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0A0A0A]/90 border-b border-zinc-800/80 transition-colors"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 grid grid-cols-[1fr_auto_1fr] items-center">
         <Link
           id="brand-logo-btn"
           to="/"
@@ -77,7 +77,7 @@ export const Navbar: React.FC = () => {
         <nav
           id="desktop-nav"
           ref={navRef}
-          className="hidden md:flex items-center gap-8 relative"
+          className="hidden md:flex items-center gap-8 relative justify-self-center"
         >
           {navItems.map((item) => {
             const isActive = isItemActive(item.path);
@@ -107,7 +107,7 @@ export const Navbar: React.FC = () => {
           />
         </nav>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4 justify-self-end">
           {isLoading ? null : user ? (
             <>
               <span className="text-sm text-zinc-400">
