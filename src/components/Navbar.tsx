@@ -67,7 +67,7 @@ export const Navbar: React.FC = () => {
         <Link
           id="brand-logo-btn"
           to="/"
-          className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E50914] rounded-lg p-1 cursor-pointer"
+          className="group inline-block w-fit justify-self-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E50914] rounded-lg p-1 cursor-pointer"
         >
           <span className="text-2xl font-black tracking-tight text-white font-display group-hover:text-[#E50914] transition-colors duration-200">
             Movies App
