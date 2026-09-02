@@ -95,10 +95,10 @@ export const HeroLanding: React.FC<HeroLandingProps> = ({ onViewMovies }) => {
 
       {/* Top Rated Movies Section — reveals with a scroll animation */}
       <motion.div
-        initial={{ opacity: 0, y: 120 }}
+        initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <TopMovies />
       </motion.div>
