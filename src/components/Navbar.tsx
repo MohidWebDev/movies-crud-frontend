@@ -77,7 +77,7 @@ export const Navbar: React.FC = () => {
         <nav
           id="desktop-nav"
           ref={navRef}
-          className="hidden md:flex items-center gap-8 relative justify-self-center"
+          className="hidden lg:flex items-center gap-8 relative justify-self-center"
         >
           {navItems.map((item) => {
             const isActive = isItemActive(item.path);
@@ -107,7 +107,7 @@ export const Navbar: React.FC = () => {
           />
         </nav>
 
-        <div className="hidden md:flex items-center gap-4 justify-self-end">
+        <div className="hidden lg:flex items-center gap-4 justify-self-end">
           {isLoading ? null : user ? (
             <>
               <span className="text-sm text-zinc-400">
@@ -145,7 +145,7 @@ export const Navbar: React.FC = () => {
           )}
         </div>
 
-        <div className="flex md:hidden items-center">
+        <div className="flex lg:hidden items-center col-start-3 justify-self-end">
           <button
             id="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -168,7 +168,7 @@ export const Navbar: React.FC = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-zinc-800 bg-[#0F0F0F]/98 px-4 py-4 space-y-2 backdrop-blur-lg"
+            className="lg:hidden border-b border-zinc-800 bg-[#0F0F0F]/98 px-4 py-4 space-y-2 backdrop-blur-lg"
           >
             {navItems.map((item) => {
               const isActive = isItemActive(item.path);
