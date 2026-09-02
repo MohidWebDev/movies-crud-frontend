@@ -29,10 +29,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasRestoredSession = React.useRef(false);
 
   // On first load, try to silently restore the session using the
   // httpOnly refresh token cookie (if one exists and is still valid).
   useEffect(() => {
+    if (hasRestoredSession.current) return;
+    hasRestoredSession.current = true;
+
     const restoreSession = async () => {
       try {
         const { accessToken: newToken } = await authApi.refresh();
