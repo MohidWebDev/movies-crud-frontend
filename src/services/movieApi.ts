@@ -22,6 +22,7 @@ interface GetMoviesParams {
   limit?: number;
   genre?: string;
   sort?: "year";
+  search?: string;
 }
 
 interface PaginatedMovies {
@@ -70,6 +71,7 @@ export const getAllMovies = async (
   if (params.limit) searchParams.set("limit", String(params.limit));
   if (params.genre) searchParams.set("genre", params.genre);
   if (params.sort) searchParams.set("sort", params.sort);
+  if (params.search) searchParams.set("search", params.search);
 
   const query = searchParams.toString();
   const res = await fetch(`${MOVIES_URL}${query ? `?${query}` : ""}`);
