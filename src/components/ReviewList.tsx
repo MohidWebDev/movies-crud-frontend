@@ -1,5 +1,10 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, ChevronsUp } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUp,
+  ChevronsDown,
+} from "lucide-react";
 import { ReviewCard } from "./ReviewCard";
 import { Review } from "../types";
 
@@ -155,16 +160,16 @@ export const ReviewList: React.FC<ReviewListProps> = ({
         ))}
 
         {hasMore && (
-          <div data-review-card className="snap-start shrink-0 w-72 sm:w-80">
+          <div
+            data-review-card
+            className="snap-start shrink-0 w-72 sm:w-80 flex items-center justify-center"
+          >
             <button
               onClick={() => setIsExpanded(true)}
-              className="h-full w-full flex flex-col items-center justify-center gap-1 bg-[#121212] border border-zinc-800 hover:border-[#E50914] rounded-xl p-4 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors cursor-pointer"
             >
-              <span className="text-sm font-semibold text-white">See More</span>
-              <span className="text-xs text-zinc-500">
-                {reviews.length - VISIBLE_IN_CAROUSEL} more review
-                {reviews.length - VISIBLE_IN_CAROUSEL !== 1 ? "s" : ""}
-              </span>
+              <ChevronsDown className="w-4 h-4" />
+              See More
             </button>
           </div>
         )}
