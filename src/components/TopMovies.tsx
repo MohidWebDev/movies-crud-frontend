@@ -169,7 +169,12 @@ export const TopMovies: React.FC = () => {
                       opacity: Math.abs(offset) === 2 ? 0.35 : 1,
                       zIndex: 10 - Math.abs(offset),
                     }}
-                    transition={{ type: "spring", stiffness: 260, damping: 30 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 160,
+                      damping: 26,
+                      mass: 0.9,
+                    }}
                     onClick={() => handleCardClick(index, movie._id)}
                   >
                     <div
