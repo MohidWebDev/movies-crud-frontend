@@ -17,7 +17,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
   );
 
   return (
-    <div className="bg-[#121212] border border-zinc-800 rounded-xl p-4 space-y-2">
+    <div className="h-full flex flex-col bg-[#121212] border border-zinc-800 rounded-xl p-4 space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold text-white">
           {review.reviewerName}
