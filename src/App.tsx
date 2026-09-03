@@ -18,6 +18,7 @@ import { DeleteModal } from "./components/DeleteModal";
 import { LoginForm } from "./components/LoginForm";
 import { RegisterForm } from "./components/RegisterForm";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { CursorGlow } from "./components/CursorGlow";
 import { Movie, ToastNotification } from "./types";
 import {
   getMovieById,
@@ -207,6 +208,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0A0A0A] text-white selection:bg-[#E50914] selection:text-white font-sans">
+      <CursorGlow />
       <Navbar />
 
       <main className="flex-1 flex flex-col min-h-0 min-w-0 w-full">
