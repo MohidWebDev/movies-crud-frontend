@@ -118,9 +118,9 @@ export const TopMovies: React.FC = () => {
   };
 
   const sizeConfig = {
-    mobile: { cardWidth: 96, spacing: 62, stageHeight: 210 },
-    tablet: { cardWidth: 130, spacing: 88, stageHeight: 270 },
-    desktop: { cardWidth: 180, spacing: 130, stageHeight: 340 },
+    mobile: { cardWidth: 92, spacing: 58, stageHeight: 190 },
+    tablet: { cardWidth: 120, spacing: 80, stageHeight: 230 },
+    desktop: { cardWidth: 160, spacing: 112, stageHeight: 280 },
   } as const;
 
   const { cardWidth, spacing, stageHeight } = sizeConfig[screenSize];
@@ -195,7 +195,7 @@ export const TopMovies: React.FC = () => {
                           : "border-zinc-800/90"
                       }`}
                     >
-                      <div className="aspect-2/3 w-full bg-zinc-900 flex items-center justify-center overflow-hidden">
+                      <div className="aspect-3/4 w-full bg-zinc-900 flex items-center justify-center overflow-hidden">
                         {movie.poster?.url ? (
                           <img
                             src={movie.poster.url}
@@ -209,17 +209,17 @@ export const TopMovies: React.FC = () => {
                         )}
                       </div>
                       {isActive && (
-                        <div className="p-3 text-center">
-                          <p className="text-sm font-bold text-white line-clamp-1">
+                        <div className="p-1.5 text-center">
+                          <p className="text-xs font-bold text-white line-clamp-1">
                             {movie.title}
                           </p>
-                          <div className="flex items-center justify-center gap-1 text-[#E50914] mt-1">
-                            <Star className="w-3.5 h-3.5 fill-[#E50914]" />
-                            <span className="text-sm font-bold">
+                          <div className="flex items-center justify-center gap-1 text-[#E50914] mt-0.5">
+                            <Star className="w-3 h-3 fill-[#E50914]" />
+                            <span className="text-xs font-bold">
                               {movie.averageRating}
                             </span>
                           </div>
-                          <p className="text-xs text-zinc-500">
+                          <p className="text-[10px] text-zinc-500">
                             {movie.reviewCount} review
                             {movie.reviewCount !== 1 ? "s" : ""}
                           </p>
