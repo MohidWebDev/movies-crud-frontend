@@ -16,8 +16,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateHome }) => {
           <button
             id="footer-brand-btn"
             onClick={onNavigateHome}
-            className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E50914] rounded-lg p-0.5 cursor-pointer"
+            className="group inline-flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E50914] rounded-lg p-0.5 cursor-pointer"
           >
+            <img src="/favicon.svg" alt="" className="w-6 h-6 sm:w-7 sm:h-7" />
             <span className="text-xl sm:text-2xl font-black tracking-tight text-white font-display group-hover:text-[#E50914] transition-colors duration-200">
               Movies App
             </span>
