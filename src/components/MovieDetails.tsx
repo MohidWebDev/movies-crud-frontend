@@ -4,7 +4,7 @@ import { ArrowLeft, Edit3, Trash2, Calendar, User, Film } from "lucide-react";
 import { Movie } from "../types";
 import { getMovieById } from "../services/movieApi";
 import { Review } from "../types";
-import { getReviewsForMovie } from "../services/reviewApi";
+import { getReviewsForMovie, deleteReview } from "../services/reviewApi";
 import { AddReviewForm } from "./AddReviewForm";
 import { ReviewList } from "./ReviewList";
 import { useAuth } from "../context/AuthContext";
@@ -72,6 +72,15 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
 
   const handleReviewAdded = (newReview: Review) => {
     setReviews((prev) => [newReview, ...prev]);
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    try {
+      await deleteReview(reviewId);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete review");
+    }
   };
 
   if (isLoading) {
@@ -216,6 +225,8 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
           reviews={reviews}
           isLoading={reviewsLoading}
           error={reviewsError}
+          isAdmin={isAdmin}
+          onDeleteReview={handleDeleteReview}
         />
       </div>
     </div>
