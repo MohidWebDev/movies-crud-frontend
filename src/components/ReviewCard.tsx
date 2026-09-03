@@ -24,9 +24,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
   );
 
   const handleDeleteClick = () => {
-    if (window.confirm("Delete this review? This cannot be undone.")) {
-      onDelete?.(review.id);
-    }
+    onDelete?.(review.id);
   };
 
   return (
