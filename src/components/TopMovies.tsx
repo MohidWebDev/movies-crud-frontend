@@ -141,7 +141,13 @@ export const TopMovies: React.FC = () => {
 
           <motion.div
             className="relative h-full flex items-center justify-center mx-auto"
-            style={{ width: cardWidth + spacing * 4 }}
+            style={{
+              width: cardWidth + spacing * 4,
+              maskImage:
+                "linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%)",
+            }}
           >
             <AnimatePresence initial={false}>
               {movies.map((movie, index) => {
