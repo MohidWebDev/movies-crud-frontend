@@ -128,8 +128,6 @@ export const TopMovies: React.FC = () => {
         <div
           className="relative w-full flex items-center justify-center select-none overflow-hidden"
           style={{ height: stageHeight }}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
         >
           <button
             onClick={goPrev}
@@ -148,6 +146,8 @@ export const TopMovies: React.FC = () => {
               WebkitMaskImage:
                 "linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%)",
             }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
           >
             <AnimatePresence initial={false}>
               {movies.map((movie, index) => {
