@@ -31,7 +31,9 @@ export const TopMovies: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [screenSize, setScreenSize] = useState<"mobile" | "tablet" | "desktop">(
+    "desktop",
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,10 +53,15 @@ export const TopMovies: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      if (width < 480) setScreenSize("mobile");
+      else if (width < 1024) setScreenSize("tablet");
+      else setScreenSize("desktop");
+    };
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   const count = movies.length;
@@ -110,9 +117,13 @@ export const TopMovies: React.FC = () => {
     return diff;
   };
 
-  const cardWidth = isMobile ? 150 : 240;
-  const spacing = isMobile ? 100 : 190;
-  const stageHeight = isMobile ? 300 : 420;
+  const sizeConfig = {
+    mobile: { cardWidth: 120, spacing: 78, stageHeight: 260 },
+    tablet: { cardWidth: 170, spacing: 120, stageHeight: 340 },
+    desktop: { cardWidth: 240, spacing: 190, stageHeight: 420 },
+  } as const;
+
+  const { cardWidth, spacing, stageHeight } = sizeConfig[screenSize];
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10">
@@ -133,7 +144,7 @@ export const TopMovies: React.FC = () => {
         </p>
       ) : (
         <div
-          className="relative w-full flex items-center justify-center select-none"
+          className="relative w-full flex items-center justify-center select-none overflow-hidden"
           style={{ height: stageHeight }}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
