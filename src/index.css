@@ -47,6 +47,15 @@
   background: #3f3f46;
 }
 
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge (Chromium) */
+}
+
 /* Glowing shadows and red accent styles */
 .glow-red-sm {
   box-shadow: 0 0 15px rgba(229, 9, 20, 0.35);
