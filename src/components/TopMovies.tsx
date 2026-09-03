@@ -158,7 +158,8 @@ export const TopMovies: React.FC = () => {
           </button>
 
           <motion.div
-            className="relative w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
+            className="relative h-full flex items-center justify-center cursor-grab active:cursor-grabbing mx-auto"
+            style={{ width: cardWidth + spacing * 4 }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.15}
