@@ -118,9 +118,9 @@ export const TopMovies: React.FC = () => {
   };
 
   const sizeConfig = {
-    mobile: { cardWidth: 120, spacing: 78, stageHeight: 260 },
-    tablet: { cardWidth: 170, spacing: 120, stageHeight: 340 },
-    desktop: { cardWidth: 240, spacing: 190, stageHeight: 420 },
+    mobile: { cardWidth: 96, spacing: 62, stageHeight: 210 },
+    tablet: { cardWidth: 130, spacing: 88, stageHeight: 270 },
+    desktop: { cardWidth: 180, spacing: 130, stageHeight: 340 },
   } as const;
 
   const { cardWidth, spacing, stageHeight } = sizeConfig[screenSize];
