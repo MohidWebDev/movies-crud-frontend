@@ -152,7 +152,7 @@ export const TopMovies: React.FC = () => {
           <button
             onClick={goPrev}
             aria-label="Previous movie"
-            className="absolute left-0 sm:left-4 z-20 p-2 rounded-full bg-[#121212]/80 border border-zinc-700 text-white hover:border-[#E50914] hover:text-[#E50914] transition-all cursor-pointer"
+            className="absolute left-4 sm:left-12 md:left-20 lg:left-32 z-20 p-2 rounded-full bg-[#121212]/80 border border-zinc-700 text-white hover:border-[#E50914] hover:text-[#E50914] transition-all cursor-pointer"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -235,7 +235,7 @@ export const TopMovies: React.FC = () => {
           <button
             onClick={goNext}
             aria-label="Next movie"
-            className="absolute right-0 sm:right-4 z-20 p-2 rounded-full bg-[#121212]/80 border border-zinc-700 text-white hover:border-[#E50914] hover:text-[#E50914] transition-all cursor-pointer"
+            className="absolute right-4 sm:right-12 md:right-20 lg:right-32 z-20 p-2 rounded-full bg-[#121212]/80 border border-zinc-700 text-white hover:border-[#E50914] hover:text-[#E50914] transition-all cursor-pointer"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
