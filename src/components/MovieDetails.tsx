@@ -7,6 +7,7 @@ import { Review } from "../types";
 import { getReviewsForMovie, deleteReview } from "../services/reviewApi";
 import { AddReviewForm } from "./AddReviewForm";
 import { ReviewList } from "./ReviewList";
+import { DeleteReviewModal } from "./DeleteReviewModal";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
@@ -33,6 +34,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
 
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+  const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -74,12 +76,20 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
     setReviews((prev) => [newReview, ...prev]);
   };
 
-  const handleDeleteReview = async (reviewId: string) => {
+  const handlePromptDeleteReview = (reviewId: string) => {
+    const review = reviews.find((r) => r.id === reviewId) || null;
+    setReviewToDelete(review);
+  };
+
+  const handleConfirmDeleteReview = async () => {
+    if (!reviewToDelete) return;
     try {
-      await deleteReview(reviewId);
-      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      await deleteReview(reviewToDelete.id);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewToDelete.id));
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete review");
+    } finally {
+      setReviewToDelete(null);
     }
   };
 
@@ -226,9 +236,16 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
           isLoading={reviewsLoading}
           error={reviewsError}
           isAdmin={isAdmin}
-          onDeleteReview={handleDeleteReview}
+          onDeleteReview={handlePromptDeleteReview}
         />
       </div>
+
+      <DeleteReviewModal
+        review={reviewToDelete}
+        isOpen={Boolean(reviewToDelete)}
+        onConfirm={handleConfirmDeleteReview}
+        onCancel={() => setReviewToDelete(null)}
+      />
     </div>
   );
 };
