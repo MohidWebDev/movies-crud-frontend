@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, PanInfo } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Star,
   TrendingUp,
@@ -22,8 +22,6 @@ const SkeletonCard: React.FC = () => (
 );
 
 const AUTO_ADVANCE_INTERVAL = 4000;
-const DRAG_THRESHOLD = 80;
-const DRAG_VELOCITY_THRESHOLD = 400;
 
 export const TopMovies: React.FC = () => {
   const [movies, setMovies] = useState<TopMovie[]>([]);
@@ -84,22 +82,6 @@ export const TopMovies: React.FC = () => {
     return () => clearInterval(timer);
   }, [isPaused, count, goNext]);
 
-  const handleDragEnd = (
-    _: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo,
-  ) => {
-    setIsPaused(false);
-    const { offset, velocity } = info;
-    if (offset.x < -DRAG_THRESHOLD || velocity.x < -DRAG_VELOCITY_THRESHOLD) {
-      goNext();
-    } else if (
-      offset.x > DRAG_THRESHOLD ||
-      velocity.x > DRAG_VELOCITY_THRESHOLD
-    ) {
-      goPrev();
-    }
-  };
-
   const handleCardClick = (index: number, movieId: string) => {
     if (index === activeIndex) {
       navigate(`/movies/${movieId}`);
@@ -158,13 +140,8 @@ export const TopMovies: React.FC = () => {
           </button>
 
           <motion.div
-            className="relative h-full flex items-center justify-center cursor-grab active:cursor-grabbing mx-auto"
+            className="relative h-full flex items-center justify-center mx-auto"
             style={{ width: cardWidth + spacing * 4 }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.15}
-            onDragStart={() => setIsPaused(true)}
-            onDragEnd={handleDragEnd}
           >
             <AnimatePresence initial={false}>
               {movies.map((movie, index) => {
