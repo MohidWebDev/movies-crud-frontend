@@ -28,9 +28,9 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#121212] border border-zinc-800 rounded-xl p-4 space-y-2">
+    <div className="h-full min-h-52 flex flex-col bg-[#121212] border border-zinc-800 rounded-xl p-5 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-white">
+        <span className="text-base font-semibold text-white">
           {review.reviewerName}
         </span>
         <div className="flex items-center gap-2">
@@ -41,14 +41,18 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
               aria-label="Delete review"
               className="text-zinc-600 hover:text-red-500 transition-colors cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-4 h-4" />
             </button>
           )}
         </div>
       </div>
-      <StarRating value={review.rating} size={16} />
-      {review.comment && (
-        <p className="text-sm text-zinc-400">{review.comment}</p>
+      <StarRating value={review.rating} size={18} />
+      {review.comment ? (
+        <p className="text-sm text-zinc-400 leading-relaxed">
+          {review.comment}
+        </p>
+      ) : (
+        <p className="text-sm text-zinc-600 italic">No comment left.</p>
       )}
     </div>
   );

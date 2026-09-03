@@ -11,7 +11,7 @@ interface ReviewListProps {
   onDeleteReview?: (reviewId: string) => void;
 }
 
-const REVIEWS_PER_PAGE = 4;
+const REVIEWS_PER_PAGE = 2;
 
 export const ReviewList: React.FC<ReviewListProps> = ({
   reviews,
