@@ -7,6 +7,8 @@ interface ReviewListProps {
   reviews: Review[];
   isLoading?: boolean;
   error?: string | null;
+  isAdmin?: boolean;
+  onDeleteReview?: (reviewId: string) => void;
 }
 
 const REVIEWS_PER_PAGE = 4;
@@ -15,6 +17,8 @@ export const ReviewList: React.FC<ReviewListProps> = ({
   reviews,
   isLoading,
   error,
+  isAdmin,
+  onDeleteReview,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -40,7 +44,12 @@ export const ReviewList: React.FC<ReviewListProps> = ({
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {pageReviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
+          <ReviewCard
+            key={review.id}
+            review={review}
+            isAdmin={isAdmin}
+            onDelete={onDeleteReview}
+          />
         ))}
       </div>
 
