@@ -27,7 +27,13 @@ const GENRES = [
 
 interface AddMovieFormProps {
   onAddMovie: (
-    movie: { title: string; director: string; year: number; genre: string },
+    movie: {
+      title: string;
+      director: string;
+      year: number;
+      genre: string;
+      trailerUrl?: string;
+    },
     posterFile: File | null,
   ) => Promise<void>;
   onCancel: () => void;
@@ -42,6 +48,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
   const [year, setYear] = useState("");
   const [genre, setGenre] = useState<string[]>([]);
   const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [trailerUrl, setTrailerUrl] = useState("");
   const [posterPreview, setPosterPreview] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,6 +83,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
           director: director.trim(),
           year: Number(year),
           genre: genre.join(","),
+          trailerUrl: trailerUrl.trim() || undefined,
         },
         posterFile,
       );
@@ -227,6 +235,20 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
               maxSelected={5}
               required
             />
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
+                Trailer URL (optional)
+              </label>
+              <input
+                id="input-trailer-url"
+                type="url"
+                value={trailerUrl}
+                onChange={(e) => setTrailerUrl(e.target.value)}
+                placeholder="e.g. https://www.youtube.com/watch?v=..."
+                className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-[#E50914] focus:ring-2 focus:ring-[#E50914]/20"
+              />
+            </div>
           </div>
 
           <motion.button
