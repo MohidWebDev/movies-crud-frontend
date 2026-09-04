@@ -31,6 +31,19 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
   const [sortByYear, setSortByYear] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
+  // Mirrors this grid's Tailwind breakpoints: 2/3/4/5/6 columns
+  const getColumnsForWidth = (width: number) => {
+    if (width >= 1280) return 6;
+    if (width >= 1024) return 5;
+    if (width >= 768) return 4;
+    if (width >= 640) return 3;
+    return 2;
+  };
+
+  const [pageLimit, setPageLimit] = useState(
+    () => getColumnsForWidth(window.innerWidth) * 5,
+  );
+
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
@@ -41,6 +54,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
         setError(null);
         const result = await getAllMovies({
           page,
+          limit: pageLimit,
           genre: selectedGenre === "ALL" ? undefined : selectedGenre,
           sort: sortByYear ? "year" : undefined,
           search: debouncedSearchQuery || undefined,
@@ -54,7 +68,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
       }
     };
     fetchMovies();
-  }, [page, selectedGenre, sortByYear, debouncedSearchQuery]);
+  }, [page, pageLimit, selectedGenre, sortByYear, debouncedSearchQuery]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -66,6 +80,19 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
   useEffect(() => {
     setPage(1);
   }, [debouncedSearchQuery]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newLimit = getColumnsForWidth(window.innerWidth) * 5;
+      setPageLimit((prev) => (prev !== newLimit ? newLimit : prev));
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [pageLimit]);
 
   const handleGenreSelect = (genre: string) => {
     setSelectedGenre(genre);
