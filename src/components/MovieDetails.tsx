@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { ArrowLeft, Edit3, Trash2, Calendar, User, Film } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit3,
+  Trash2,
+  Calendar,
+  User,
+  Film,
+  Play,
+} from "lucide-react";
+import { TrailerModal } from "./TrailerModal";
+import { extractYouTubeId, getYouTubeThumbnail } from "../utils/youtube";
 import { Movie } from "../types";
 import { getMovieById } from "../services/movieApi";
 import { Review } from "../types";
@@ -35,6 +45,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -190,6 +201,32 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
           ))}
         </div>
 
+        {movie.trailerUrl &&
+          extractYouTubeId(movie.trailerUrl) &&
+          (() => {
+            const videoId = extractYouTubeId(movie.trailerUrl)!;
+            return (
+              <button
+                onClick={() => setIsTrailerOpen(true)}
+                className="group relative w-full max-w-md aspect-video rounded-2xl overflow-hidden border border-zinc-800 shadow-xl mb-8 cursor-pointer"
+              >
+                <img
+                  src={getYouTubeThumbnail(videoId)}
+                  alt={`${movie.title} trailer`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/55 transition-colors flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-[#E50914] flex items-center justify-center shadow-[0_0_25px_rgba(229,9,20,0.6)] group-hover:scale-110 transition-transform">
+                    <Play className="w-7 h-7 text-white fill-white ml-1" />
+                  </div>
+                </div>
+                <span className="absolute bottom-3 left-3 text-xs font-bold uppercase tracking-wider text-white bg-black/60 px-2.5 py-1 rounded-md">
+                  Watch Trailer
+                </span>
+              </button>
+            );
+          })()}
+
         {isAdmin && (
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
             <motion.button
@@ -245,6 +282,12 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
         isOpen={Boolean(reviewToDelete)}
         onConfirm={handleConfirmDeleteReview}
         onCancel={() => setReviewToDelete(null)}
+      />
+
+      <TrailerModal
+        videoId={movie.trailerUrl ? extractYouTubeId(movie.trailerUrl) : null}
+        isOpen={isTrailerOpen}
+        onClose={() => setIsTrailerOpen(false)}
       />
     </div>
   );
