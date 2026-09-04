@@ -9,6 +9,14 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isLoading } = useAuth();
+  const [gracePeriodPassed, setGracePeriodPassed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setGracePeriodPassed(true), 400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const showAuthSection = !isLoading || gracePeriodPassed;
 
   const navItems = [
     { path: "/", label: "Home" },
@@ -109,7 +117,7 @@ export const Navbar: React.FC = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-4 justify-self-end">
-          {isLoading ? null : user ? (
+          {!showAuthSection ? null : user ? (
             <>
               <span className="text-sm text-zinc-400">
                 Hi,{" "}
@@ -192,7 +200,7 @@ export const Navbar: React.FC = () => {
               );
             })}
 
-            {isLoading ? null : user ? (
+            {!showAuthSection ? null : user ? (
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white cursor-pointer"
