@@ -33,7 +33,13 @@ import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 interface EditMovieRouteProps {
   onUpdateMovie: (
     id: string,
-    updated: { title: string; director: string; year: number; genre: string },
+    updated: {
+      title: string;
+      director: string;
+      year: number;
+      genre: string;
+      trailerUrl?: string;
+    },
     posterFile: File | null,
   ) => Promise<void>;
 }
@@ -156,6 +162,7 @@ export default function App() {
       director: string;
       year: number;
       genre: string;
+      trailerUrl?: string;
     },
     posterFile: File | null,
   ) => {
@@ -184,6 +191,7 @@ export default function App() {
       director: string;
       year: number;
       genre: string;
+      trailerUrl?: string;
     },
     posterFile: File | null,
   ) => {
