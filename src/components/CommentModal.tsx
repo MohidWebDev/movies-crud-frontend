@@ -63,7 +63,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({
               <StarRating value={review.rating} size={18} />
             </div>
 
-            <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap wrap-break-word">
               {review.comment}
             </p>
           </motion.div>

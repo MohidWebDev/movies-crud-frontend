@@ -58,7 +58,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
         <StarRating value={review.rating} size={18} />
         {review.comment ? (
           <div>
-            <p className="text-sm text-zinc-400 leading-relaxed line-clamp-3">
+            <p className="text-sm text-zinc-400 leading-relaxed line-clamp-3 wrap-break-word">
               {review.comment}
             </p>
             {isLongComment && (
