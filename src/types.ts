@@ -12,6 +12,7 @@ export interface Movie {
   year: number;
   genre: string;
   posterUrl?: string;
+  trailerUrl?: string;
 }
 
 export interface Review {
