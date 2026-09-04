@@ -69,7 +69,7 @@ export const Navbar: React.FC = () => {
   return (
     <header
       id="main-header"
-      className="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0A0A0A]/90 border-b border-zinc-800/80 transition-colors"
+      className="top-0 z-40 w-full backdrop-blur-md bg-[#0A0A0A]/90 border-b border-zinc-800/80 transition-colors relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 grid grid-cols-[1fr_auto_1fr] items-center">
         <Link
@@ -176,10 +176,10 @@ export const Navbar: React.FC = () => {
         {mobileMenuOpen && (
           <motion.div
             id="mobile-nav-drawer"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-b border-zinc-800 bg-[#0F0F0F]/98 px-4 py-4 space-y-2 backdrop-blur-lg"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="lg:hidden absolute top-full left-0 right-0 max-h-[calc(100vh-5rem)] overflow-y-auto border-b border-zinc-800 bg-[#0F0F0F]/98 px-4 py-4 space-y-2 backdrop-blur-lg shadow-2xl"
           >
             {navItems.map((item) => {
               const isActive = isItemActive(item.path);
