@@ -160,14 +160,34 @@ export const Navbar: React.FC = () => {
           <button
             id="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700 focus:outline-none cursor-pointer"
+            className="relative p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700 focus:outline-none cursor-pointer overflow-hidden"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6 text-[#E50914]" />
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              {mobileMenuOpen ? (
+                <motion.span
+                  key="close-icon"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="block"
+                >
+                  <X className="w-6 h-6" />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="menu-icon"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="block"
+                >
+                  <Menu className="w-6 h-6 text-[#E50914]" />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </div>
