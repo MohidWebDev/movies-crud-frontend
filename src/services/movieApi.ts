@@ -15,6 +15,7 @@ interface BackendMovie {
     url: string;
     publicId: string;
   };
+  trailerUrl?: string;
 }
 
 interface GetMoviesParams {
@@ -52,6 +53,7 @@ const normalizeMovie = (movie: BackendMovie): Movie => ({
   year: movie.year,
   genre: Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre,
   posterUrl: movie.poster?.url,
+  trailerUrl: movie.trailerUrl,
 });
 
 // Handles non-2xx responses consistently across all requests
