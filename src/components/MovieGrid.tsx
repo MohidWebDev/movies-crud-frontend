@@ -201,7 +201,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
       </div>
 
       {/* Genre Filter Dropdown */}
-      <div className="py-4 max-w-xs">
+      <div className="py-4 max-w-48">
         <SingleSelectDropdown
           label="Filter by Genre"
           options={allGenres}
