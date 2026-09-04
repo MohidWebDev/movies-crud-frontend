@@ -29,7 +29,13 @@ interface EditMovieFormProps {
   movie: Movie;
   onUpdateMovie: (
     id: string,
-    updated: { title: string; director: string; year: number; genre: string },
+    updated: {
+      title: string;
+      director: string;
+      year: number;
+      genre: string;
+      trailerUrl?: string;
+    },
     posterFile: File | null,
   ) => Promise<void>;
   onCancel: () => void;
@@ -51,6 +57,7 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
   );
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState(movie.posterUrl || "");
+  const [trailerUrl, setTrailerUrl] = useState(movie.trailerUrl || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileUpload = (file: File) => {
@@ -79,6 +86,7 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
           director: director.trim(),
           year: Number(year),
           genre: genre.join(","),
+          trailerUrl: trailerUrl.trim() || undefined,
         },
         posterFile,
       );
@@ -195,6 +203,20 @@ export const EditMovieForm: React.FC<EditMovieFormProps> = ({
                 onChange={setGenre}
                 maxSelected={5}
               />
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+                  Trailer URL
+                </label>
+                <input
+                  id="edit-input-trailer-url"
+                  type="url"
+                  value={trailerUrl}
+                  onChange={(e) => setTrailerUrl(e.target.value)}
+                  placeholder="e.g. https://www.youtube.com/watch?v=..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#181818] border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-[#E50914] transition-all"
+                />
+              </div>
             </div>
           </div>
 
