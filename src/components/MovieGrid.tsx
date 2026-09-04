@@ -246,7 +246,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
                 className="group relative flex flex-col min-w-0 bg-[#121212] rounded-2xl border border-zinc-800/90 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#E50914]/40 hover:shadow-[0_8px_25px_rgba(229,9,20,0.12)]"
               >
                 {/* Poster Area with rating badge */}
-                <div className="relative aspect-3/4 w-full min-w-0 bg-zinc-900 overflow-hidden flex items-center justify-center">
+                <div className="relative aspect-4/5 w-full min-w-0 bg-zinc-900 overflow-hidden flex items-center justify-center">
                   {hasValidImage ? (
                     <img
                       src={movie.posterUrl}
@@ -269,17 +269,17 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
                 </div>
 
                 {/* Card Content Information */}
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-[#121212]">
+                <div className="p-3 flex-1 flex flex-col justify-between space-y-2 bg-[#121212]">
                   <div>
-                    <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-red-400 transition-colors line-clamp-1">
+                    <h3 className="text-base font-bold text-white tracking-tight group-hover:text-red-400 transition-colors line-clamp-1">
                       {movie.title}
                     </h3>
-                    <p className="text-xs text-zinc-400 font-medium mt-1">
+                    <p className="text-xs text-zinc-400 font-medium mt-0.5">
                       {movie.director} • {movie.year}
                     </p>
 
                     {/* Genre Tags */}
-                    <div className="flex flex-wrap gap-1.5 mt-2.5">
+                    <div className="flex flex-wrap gap-1.5 mt-2">
                       {parsedGenres.map((genre, idx) => (
                         <span
                           key={idx}
@@ -294,7 +294,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
                   {/* Action Buttons: Edit and Red Delete Button */}
                   {isAdmin && (
                     <div
-                      className="pt-3 border-t border-zinc-800/80 flex items-center gap-2"
+                      className="pt-2 border-t border-zinc-800/80 flex items-center gap-2"
                       onClick={(e) => e.stopPropagation()} // Prevents card navigation when clicking action buttons
                     >
                       <button
