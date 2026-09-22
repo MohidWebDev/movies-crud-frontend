@@ -1,8 +1,5 @@
 import { Movie } from "../types";
-import { authFetch } from "./apiClient";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
-const MOVIES_URL = `${API_BASE_URL}/api/movies`;
+import { apiClient } from "./apiClient";
 
 // Backend's raw shape before we normalize it for the frontend
 interface BackendMovie {
@@ -56,28 +53,10 @@ const normalizeMovie = (movie: BackendMovie): Movie => ({
   trailerUrl: movie.trailerUrl,
 });
 
-// Handles non-2xx responses consistently across all requests
-const handleResponse = async (res: Response) => {
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}));
-    throw new Error(errorBody.message || "Something went wrong");
-  }
-  return res.json();
-};
-
 export const getAllMovies = async (
   params: GetMoviesParams = {},
 ): Promise<PaginatedMovies> => {
-  const searchParams = new URLSearchParams();
-  if (params.page) searchParams.set("page", String(params.page));
-  if (params.limit) searchParams.set("limit", String(params.limit));
-  if (params.genre) searchParams.set("genre", params.genre);
-  if (params.sort) searchParams.set("sort", params.sort);
-  if (params.search) searchParams.set("search", params.search);
-
-  const query = searchParams.toString();
-  const res = await fetch(`${MOVIES_URL}${query ? `?${query}` : ""}`);
-  const result = await handleResponse(res);
+  const { data: result } = await apiClient.get("/api/movies", { params });
 
   return {
     data: result.data.map(normalizeMovie),
@@ -88,13 +67,12 @@ export const getAllMovies = async (
 };
 
 export const getMovieStats = async (): Promise<TopMovie[]> => {
-  const res = await fetch(`${MOVIES_URL}/stats`);
-  return handleResponse(res);
+  const { data } = await apiClient.get("/api/movies/stats");
+  return data;
 };
 
 export const getMovieById = async (id: string): Promise<Movie> => {
-  const res = await fetch(`${MOVIES_URL}/${id}`);
-  const data: BackendMovie = await handleResponse(res);
+  const { data } = await apiClient.get<BackendMovie>(`/api/movies/${id}`);
   return normalizeMovie(data);
 };
 
@@ -108,12 +86,7 @@ export const createMovie = async (
       .map((g) => g.trim())
       .filter(Boolean),
   };
-  const res = await authFetch(MOVIES_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data: BackendMovie = await handleResponse(res);
+  const { data } = await apiClient.post<BackendMovie>("/api/movies", payload);
   return normalizeMovie(data);
 };
 
@@ -128,31 +101,24 @@ export const updateMovie = async (
       .map((g) => g.trim())
       .filter(Boolean),
   };
-  const res = await authFetch(`${MOVIES_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data: BackendMovie = await handleResponse(res);
+  const { data } = await apiClient.put<BackendMovie>(
+    `/api/movies/${id}`,
+    payload,
+  );
   return normalizeMovie(data);
 };
 
 export const deleteMovie = async (id: string): Promise<void> => {
-  const res = await authFetch(`${MOVIES_URL}/${id}`, { method: "DELETE" });
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}));
-    throw new Error(errorBody.message || "Failed to delete movie");
-  }
+  await apiClient.delete(`/api/movies/${id}`);
 };
 
 export const uploadPoster = async (id: string, file: File): Promise<Movie> => {
   const formData = new FormData();
   formData.append("poster", file);
 
-  const res = await authFetch(`${MOVIES_URL}/${id}/poster`, {
-    method: "POST",
-    body: formData, // no Content-Type header — browser sets it with boundary automatically
-  });
-  const data: BackendMovie = await handleResponse(res);
+  const { data } = await apiClient.post<BackendMovie>(
+    `/api/movies/${id}/poster`,
+    formData,
+  );
   return normalizeMovie(data);
 };
