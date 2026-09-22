@@ -40,9 +40,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const restoreSession = async () => {
       try {
         const { accessToken: newToken } = await authApi.refresh();
-        const currentUser = await authApi.getMe(newToken);
-        setAccessToken(newToken);
         setApiClientToken(newToken);
+        const currentUser = await authApi.getMe();
+        setAccessToken(newToken);
         setUser(currentUser);
       } catch {
         // No valid refresh token — user is simply not logged in, not an error
