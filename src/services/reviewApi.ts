@@ -1,9 +1,5 @@
 import { Review } from "../types";
-import { authFetch } from "./apiClient";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
-const MOVIES_URL = `${API_BASE_URL}/api/movies`;
-const REVIEWS_URL = `${API_BASE_URL}/api/reviews`;
+import { apiClient } from "./apiClient";
 
 interface BackendReview {
   _id: string;
@@ -23,19 +19,12 @@ const normalizeReview = (review: BackendReview): Review => ({
   createdAt: review.createdAt,
 });
 
-const handleResponse = async (res: Response) => {
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}));
-    throw new Error(errorBody.message || "Something went wrong");
-  }
-  return res.json();
-};
-
 export const getReviewsForMovie = async (
   movieId: string,
 ): Promise<Review[]> => {
-  const res = await fetch(`${MOVIES_URL}/${movieId}/reviews`);
-  const data: BackendReview[] = await handleResponse(res);
+  const { data } = await apiClient.get<BackendReview[]>(
+    `/api/movies/${movieId}/reviews`,
+  );
   return data.map(normalizeReview);
 };
 
@@ -43,12 +32,10 @@ export const createReview = async (
   movieId: string,
   review: Omit<Review, "id" | "movieId" | "createdAt" | "reviewerName">,
 ): Promise<Review> => {
-  const res = await authFetch(`${MOVIES_URL}/${movieId}/reviews`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(review),
-  });
-  const data: BackendReview = await handleResponse(res);
+  const { data } = await apiClient.post<BackendReview>(
+    `/api/movies/${movieId}/reviews`,
+    review,
+  );
   return normalizeReview(data);
 };
 
@@ -56,19 +43,13 @@ export const updateReview = async (
   id: string,
   review: Omit<Review, "id" | "movieId" | "createdAt" | "reviewerName">,
 ): Promise<Review> => {
-  const res = await authFetch(`${REVIEWS_URL}/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(review),
-  });
-  const data: BackendReview = await handleResponse(res);
+  const { data } = await apiClient.patch<BackendReview>(
+    `/api/reviews/${id}`,
+    review,
+  );
   return normalizeReview(data);
 };
 
 export const deleteReview = async (id: string): Promise<void> => {
-  const res = await authFetch(`${REVIEWS_URL}/${id}`, { method: "DELETE" });
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}));
-    throw new Error(errorBody.message || "Failed to delete review");
-  }
+  await apiClient.delete(`/api/reviews/${id}`);
 };
