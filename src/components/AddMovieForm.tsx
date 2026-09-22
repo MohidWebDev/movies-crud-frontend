@@ -238,7 +238,6 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({
 
             <div className="sm:col-span-2">
               <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
-                Trailer URL (optional)
               </label>
               <input
                 id="input-trailer-url"
