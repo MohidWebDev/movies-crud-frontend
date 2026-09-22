@@ -1,4 +1,6 @@
-import * as authApi from "./authApi";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
 let accessToken: string | null = null;
 let onTokenRefreshed: ((token: string | null) => void) | null = null;
@@ -11,31 +13,52 @@ export const setTokenRefreshCallback = (cb: (token: string | null) => void) => {
   onTokenRefreshed = cb;
 };
 
-export const authFetch = async (
-  input: RequestInfo,
-  init: RequestInit = {},
-): Promise<Response> => {
-  const withAuthHeader = (token: string | null): RequestInit => ({
-    ...init,
-    headers: {
-      ...init.headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
 
-  let res = await fetch(input, withAuthHeader(accessToken));
-
-  if (res.status === 401) {
-    try {
-      const { accessToken: newToken } = await authApi.refresh();
-      setAccessToken(newToken);
-      onTokenRefreshed?.(newToken);
-      res = await fetch(input, withAuthHeader(newToken));
-    } catch {
-      setAccessToken(null);
-      onTokenRefreshed?.(null);
-    }
+// Request interceptor — attaches the current access token to every outgoing call
+apiClient.interceptors.request.use((config) => {
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
+  return config;
+});
 
-  return res;
-};
+// Response interceptor — on a 401, refresh the access token once and retry
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    const isRefreshCall = originalRequest?.url?.includes("/auth/refresh");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isRefreshCall
+    ) {
+      originalRequest._retry = true;
+      try {
+        const { data } = await axios.post<{ accessToken: string }>(
+          `${API_BASE_URL}/api/auth/refresh`,
+          {},
+          { withCredentials: true },
+        );
+        setAccessToken(data.accessToken);
+        onTokenRefreshed?.(data.accessToken);
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        setAccessToken(null);
+        onTokenRefreshed?.(null);
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
