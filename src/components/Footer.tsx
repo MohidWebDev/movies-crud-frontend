@@ -20,7 +20,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateHome }) => {
           >
             <img src="/favicon.svg" alt="" className="w-6 h-6 sm:w-7 sm:h-7" />
             <span className="text-xl sm:text-2xl font-black tracking-tight text-white font-display group-hover:text-[#E50914] transition-colors duration-200">
-              Movies App
+              
             </span>
           </button>
         </div>
