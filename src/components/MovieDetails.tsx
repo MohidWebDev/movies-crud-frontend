@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../queryKeys";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
@@ -34,12 +36,6 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const [movie, setMovie] = useState<Movie | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
 
   const { user } = useAuth();
@@ -47,44 +43,31 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
   const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchMovie = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await getMovieById(movieId);
-        setMovie(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load movie details",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMovie();
-  }, [movieId]);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        setReviewsLoading(true);
-        setReviewsError(null);
-        const data = await getReviewsForMovie(movieId);
-        setReviews(data);
-      } catch (err) {
-        setReviewsError(
-          err instanceof Error ? err.message : "Failed to load reviews",
-        );
-      } finally {
-        setReviewsLoading(false);
-      }
-    };
-    fetchReviews();
-  }, [movieId]);
+  const {
+    data: movie,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.movies.detail(movieId),
+    queryFn: () => getMovieById(movieId),
+  });
+
+  const {
+    data: reviews = [],
+    isLoading: reviewsLoading,
+    error: reviewsError,
+  } = useQuery({
+    queryKey: queryKeys.reviews.byMovie(movieId),
+    queryFn: () => getReviewsForMovie(movieId),
+  });
 
   const handleReviewAdded = (newReview: Review) => {
-    setReviews((prev) => [newReview, ...prev]);
+    queryClient.setQueryData<Review[]>(
+      queryKeys.reviews.byMovie(movieId),
+      (prev = []) => [newReview, ...prev],
+    );
   };
 
   const handlePromptDeleteReview = (reviewId: string) => {
@@ -96,7 +79,10 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
     if (!reviewToDelete) return;
     try {
       await deleteReview(reviewToDelete.id);
-      setReviews((prev) => prev.filter((r) => r.id !== reviewToDelete.id));
+      queryClient.setQueryData<Review[]>(
+        queryKeys.reviews.byMovie(movieId),
+        (prev = []) => prev.filter((r) => r.id !== reviewToDelete.id),
+      );
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete review");
     } finally {
@@ -117,7 +103,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
     return (
       <div className="max-w-4xl mx-auto px-4 py-24 text-center">
         <p className="text-red-400 font-semibold mb-1">Failed to load movie</p>
-        <p className="text-sm text-zinc-400 mb-6">{error}</p>
+        <p className="text-sm text-zinc-400 mb-6">{error?.message}</p>
         <button
           onClick={onBack}
           className="px-6 py-2.5 rounded-xl bg-[#E50914] text-white text-sm font-semibold hover:bg-[#F40612] transition-all cursor-pointer"
@@ -271,7 +257,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
         <ReviewList
           reviews={reviews}
           isLoading={reviewsLoading}
-          error={reviewsError}
+          error={reviewsError?.message ?? null}
           isAdmin={isAdmin}
           onDeleteReview={handlePromptDeleteReview}
         />
