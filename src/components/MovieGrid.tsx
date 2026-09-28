@@ -5,6 +5,8 @@ import { Movie } from "../types";
 import { getAllMovies } from "../services/movieApi";
 import { SingleSelectDropdown } from "./SingleSelectDropdown";
 import { useAuth } from "../context/AuthContext";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { queryKeys } from "../queryKeys";
 
 interface MovieGridProps {
   onSelectMovie: (movie: Movie) => void;
@@ -19,11 +21,7 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
   onDeleteMovie,
   onAddMovie,
 }) => {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -47,28 +45,22 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const result = await getAllMovies({
-          page,
-          limit: pageLimit,
-          genre: selectedGenre === "ALL" ? undefined : selectedGenre,
-          sort: sortByYear ? "year" : undefined,
-          search: debouncedSearchQuery || undefined,
-        });
-        setMovies(result.data);
-        setTotalPages(result.totalPages);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load movies");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMovies();
-  }, [page, pageLimit, selectedGenre, sortByYear, debouncedSearchQuery]);
+  const params = {
+    page,
+    limit: pageLimit,
+    genre: selectedGenre === "ALL" ? undefined : selectedGenre,
+    sort: sortByYear ? ("year" as const) : undefined,
+    search: debouncedSearchQuery || undefined,
+  };
+
+  const { data, isLoading, isPlaceholderData, error } = useQuery({
+    queryKey: queryKeys.movies.list(params),
+    queryFn: () => getAllMovies(params),
+    placeholderData: keepPreviousData,
+  });
+
+  const movies = data?.data ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -248,14 +240,16 @@ export const MovieGrid: React.FC<MovieGridProps> = ({
           <p className="text-red-400 font-semibold mb-1">
             Failed to load movies
           </p>
-          <p className="text-sm text-zinc-400">{error}</p>
+          <p className="text-sm text-zinc-400">{error.message}</p>
         </div>
       ) : movies.length > 0 ? (
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 pt-4"
+          className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 pt-4 transition-opacity ${
+            isPlaceholderData ? "opacity-60" : ""
+          }`}
         >
           {movies.map((movie) => {
             const hasValidImage = movie.posterUrl && !imageErrors[movie.id];
