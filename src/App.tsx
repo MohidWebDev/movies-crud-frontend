@@ -8,7 +8,6 @@ import {
   useLocation,
 } from "react-router-dom";
 import { queryKeys } from "./queryKeys";
-import { motion, AnimatePresence } from "motion/react";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { HeroLanding } from "./components/HeroLanding";
@@ -20,7 +19,7 @@ import { DeleteModal } from "./components/DeleteModal";
 import { LoginForm } from "./components/LoginForm";
 import { RegisterForm } from "./components/RegisterForm";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { Movie, ToastNotification } from "./types";
+import { Movie } from "./types";
 import {
   getMovieById,
   createMovie,
@@ -28,7 +27,7 @@ import {
   updateMovie,
   deleteMovie,
 } from "./services/movieApi";
-import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import { useToast } from "./context/ToastContext";
 
 // Small wrapper so EditMovieForm can be reached as a route,
 // looking up the movie by the :id URL param.
@@ -98,19 +97,8 @@ export default function App() {
 
   const [editOrigin, setEditOrigin] = useState<string>("/movies");
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
-  const [toasts, setToasts] = useState<ToastNotification[]>([]);
+  const { showToast } = useToast();
   const queryClient = useQueryClient();
-
-  const showToast = (
-    message: string,
-    type: "success" | "error" | "info" = "success",
-  ) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  };
 
   const handleSelectMovie = (movie: Movie) => {
     navigate(`/movies/${movie.id}`);
@@ -316,39 +304,6 @@ export default function App() {
         onConfirm={handleConfirmDelete}
         onCancel={() => setMovieToDelete(null)}
       />
-
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
-              key={toast.id}
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-[#181818] border border-zinc-700 text-white shadow-2xl text-sm font-medium"
-            >
-              {toast.type === "success" && (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              )}
-              {toast.type === "error" && (
-                <AlertCircle className="w-4 h-4 text-[#E50914]" />
-              )}
-              {toast.type === "info" && (
-                <Info className="w-4 h-4 text-blue-400" />
-              )}
-              <span>{toast.message}</span>
-              <button
-                onClick={() =>
-                  setToasts((prev) => prev.filter((t) => t.id !== toast.id))
-                }
-                className="ml-2 text-zinc-500 hover:text-white"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
     </div>
   );
 }
