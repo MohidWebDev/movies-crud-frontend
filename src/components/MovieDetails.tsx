@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
 import { motion } from "motion/react";
 import {
@@ -63,31 +63,46 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
     queryFn: () => getReviewsForMovie(movieId),
   });
 
-  const handleReviewAdded = (newReview: Review) => {
-    queryClient.setQueryData<Review[]>(
-      queryKeys.reviews.byMovie(movieId),
-      (prev = []) => [newReview, ...prev],
-    );
-  };
-
   const handlePromptDeleteReview = (reviewId: string) => {
     const review = reviews.find((r) => r.id === reviewId) || null;
     setReviewToDelete(review);
   };
 
-  const handleConfirmDeleteReview = async () => {
-    if (!reviewToDelete) return;
-    try {
-      await deleteReview(reviewToDelete.id);
+  const { mutate: confirmDeleteReview } = useMutation({
+    mutationFn: (reviewId: string) => deleteReview(reviewId),
+    onMutate: async (reviewId) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.reviews.byMovie(movieId),
+      });
+      const previousReviews = queryClient.getQueryData<Review[]>(
+        queryKeys.reviews.byMovie(movieId),
+      );
       queryClient.setQueryData<Review[]>(
         queryKeys.reviews.byMovie(movieId),
-        (prev = []) => prev.filter((r) => r.id !== reviewToDelete.id),
+        (prev = []) => prev.filter((r) => r.id !== reviewId),
       );
-    } catch (err) {
+      return { previousReviews };
+    },
+    onError: (err, _reviewId, context) => {
+      if (context?.previousReviews) {
+        queryClient.setQueryData(
+          queryKeys.reviews.byMovie(movieId),
+          context.previousReviews,
+        );
+      }
       alert(err instanceof Error ? err.message : "Failed to delete review");
-    } finally {
-      setReviewToDelete(null);
-    }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.reviews.byMovie(movieId),
+      });
+    },
+  });
+
+  const handleConfirmDeleteReview = () => {
+    if (!reviewToDelete) return;
+    confirmDeleteReview(reviewToDelete.id);
+    setReviewToDelete(null);
   };
 
   if (isLoading) {
@@ -242,7 +257,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
 
       <div className="w-full max-w-2xl mx-auto mt-4 space-y-6">
         {user ? (
-          <AddReviewForm movieId={movieId} onReviewAdded={handleReviewAdded} />
+          <AddReviewForm movieId={movieId} />
         ) : (
           <div className="bg-[#121212] border border-zinc-800 rounded-2xl p-6 text-center">
             <p className="text-sm text-zinc-400">

@@ -1,44 +1,41 @@
 import React, { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { StarRating } from "./StarRating";
 import { createReview } from "../services/reviewApi";
-import { Review } from "../types";
 import { useAuth } from "../context/AuthContext";
+import { queryKeys } from "../queryKeys";
 
 interface AddReviewFormProps {
   movieId: string;
-  onReviewAdded: (review: Review) => void;
 }
 
-export const AddReviewForm: React.FC<AddReviewFormProps> = ({
-  movieId,
-  onReviewAdded,
-}) => {
+export const AddReviewForm: React.FC<AddReviewFormProps> = ({ movieId }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || rating === 0) return;
-
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      const newReview = await createReview(movieId, {
-        rating,
-        comment: comment.trim() || undefined,
+  const {
+    mutate: submitReview,
+    isPending: isSubmitting,
+    error,
+  } = useMutation({
+    mutationFn: () =>
+      createReview(movieId, { rating, comment: comment.trim() || undefined }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.reviews.byMovie(movieId),
       });
-      onReviewAdded(newReview);
       setRating(0);
       setComment("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add review");
-    } finally {
-      setIsSubmitting(false);
-    }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || rating === 0) return;
+    submitReview();
   };
 
   return (
@@ -48,7 +45,11 @@ export const AddReviewForm: React.FC<AddReviewFormProps> = ({
     >
       <h3 className="text-lg font-bold text-white">Write a Review</h3>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && (
+        <p className="text-sm text-red-400">
+          {error instanceof Error ? error.message : "Failed to add review"}
+        </p>
+      )}
 
       <div>
         <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
