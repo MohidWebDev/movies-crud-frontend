@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Routes,
   Route,
@@ -6,6 +7,7 @@ import {
   useParams,
   useLocation,
 } from "react-router-dom";
+import { queryKeys } from "./queryKeys";
 import { motion, AnimatePresence } from "motion/react";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -47,26 +49,16 @@ interface EditMovieRouteProps {
 const EditMovieRoute: React.FC<EditMovieRouteProps> = ({ onUpdateMovie }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [movie, setMovie] = useState<Movie | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!id) return;
-    const fetchMovie = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await getMovieById(id);
-        setMovie(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Movie not found");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMovie();
-  }, [id]);
+  const {
+    data: movie,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.movies.detail(id ?? ""),
+    queryFn: () => getMovieById(id as string),
+    enabled: Boolean(id),
+  });
 
   if (isLoading) {
     return (
@@ -105,10 +97,9 @@ export default function App() {
   const location = useLocation();
 
   const [editOrigin, setEditOrigin] = useState<string>("/movies");
-  const [refreshKey, setRefreshKey] = useState(0);
-
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
+  const queryClient = useQueryClient();
 
   const showToast = (
     message: string,
@@ -136,28 +127,65 @@ export default function App() {
     setMovieToDelete(movie);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!movieToDelete) return;
-
-    try {
-      await deleteMovie(movieToDelete.id);
-
-      setRefreshKey((k) => k + 1);
-      showToast(`"${movieToDelete.title}" removed from archive`, "info");
+  const { mutate: confirmDelete } = useMutation({
+    mutationFn: (movie: Movie) => deleteMovie(movie.id),
+    onSuccess: (_data, movie) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.movies.all });
+      showToast(`"${movie.title}" removed from archive`, "info");
       navigate("/movies");
-
-      setMovieToDelete(null);
-    } catch (err) {
+    },
+    onError: (err) => {
       showToast(
         err instanceof Error ? err.message : "Failed to delete movie",
         "error",
       );
+    },
+    onSettled: () => {
       setMovieToDelete(null);
-    }
+    },
+  });
+
+  const handleConfirmDelete = () => {
+    if (!movieToDelete) return;
+    confirmDelete(movieToDelete);
   };
 
+  const { mutate: addMovie } = useMutation({
+    mutationFn: async ({
+      movieData,
+      posterFile,
+    }: {
+      movieData: {
+        title: string;
+        director: string;
+        year: number;
+        genre: string;
+        trailerUrl?: string;
+      };
+      posterFile: File | null;
+    }) => {
+      const newMovie = await createMovie(movieData);
+      if (posterFile) {
+        await uploadPoster(newMovie.id, posterFile);
+      }
+      return newMovie;
+    },
+    onSuccess: (newMovie) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.movies.all });
+      showToast(`"${newMovie.title}" added to your archive!`, "success");
+      navigate("/movies");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    onError: (err) => {
+      showToast(
+        err instanceof Error ? err.message : "Failed to add movie",
+        "error",
+      );
+    },
+  });
+
   const handleAddMovie = async (
-    newMovieData: {
+    movieData: {
       title: string;
       director: string;
       year: number;
@@ -166,23 +194,45 @@ export default function App() {
     },
     posterFile: File | null,
   ) => {
-    try {
-      const newMovie = await createMovie(newMovieData);
+    addMovie({ movieData, posterFile });
+  };
 
+  const { mutate: updateMovieMutation } = useMutation({
+    mutationFn: async ({
+      id,
+      updatedData,
+      posterFile,
+    }: {
+      id: string;
+      updatedData: {
+        title: string;
+        director: string;
+        year: number;
+        genre: string;
+        trailerUrl?: string;
+      };
+      posterFile: File | null;
+    }) => {
+      await updateMovie(id, updatedData);
       if (posterFile) {
-        await uploadPoster(newMovie.id, posterFile);
+        await uploadPoster(id, posterFile);
       }
-
-      showToast(`"${newMovie.title}" added to your archive!`, "success");
-      navigate("/movies");
+      return { id, title: updatedData.title };
+    },
+    onSuccess: ({ id, title }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.movies.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.movies.detail(id) });
+      showToast(`"${title}" updated successfully!`, "success");
+      navigate(editOrigin);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
+    },
+    onError: (err) => {
       showToast(
-        err instanceof Error ? err.message : "Failed to add movie",
+        err instanceof Error ? err.message : "Failed to update movie",
         "error",
       );
-    }
-  };
+    },
+  });
 
   const handleUpdateMovie = async (
     id: string,
@@ -195,22 +245,7 @@ export default function App() {
     },
     posterFile: File | null,
   ) => {
-    try {
-      await updateMovie(id, updatedData);
-
-      if (posterFile) {
-        await uploadPoster(id, posterFile);
-      }
-
-      showToast(`"${updatedData.title}" updated successfully!`, "success");
-      navigate(editOrigin);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-      showToast(
-        err instanceof Error ? err.message : "Failed to update movie",
-        "error",
-      );
-    }
+    updateMovieMutation({ id, updatedData, posterFile });
   };
 
   return (
@@ -232,7 +267,6 @@ export default function App() {
             path="/movies"
             element={
               <MovieGrid
-                key={refreshKey}
                 onSelectMovie={handleSelectMovie}
                 onEditMovie={handleStartEdit}
                 onDeleteMovie={handlePromptDelete}
