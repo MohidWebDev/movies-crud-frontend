@@ -21,6 +21,7 @@ import { AddReviewForm } from "./AddReviewForm";
 import { ReviewList } from "./ReviewList";
 import { DeleteReviewModal } from "./DeleteReviewModal";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { Link } from "react-router-dom";
 
 interface MovieDetailsProps {
@@ -44,6 +45,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
 
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const {
     data: movie,
@@ -90,7 +92,10 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
           context.previousReviews,
         );
       }
-      alert(err instanceof Error ? err.message : "Failed to delete review");
+      showToast(
+        err instanceof Error ? err.message : "Failed to delete review",
+        "error",
+      );
     },
     onSettled: () => {
       queryClient.invalidateQueries({
