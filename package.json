@@ -7,7 +7,10 @@
     "dev": "vite --port=5173 --host=0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
@@ -23,11 +26,24 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@babel/core": "^8.0.7",
+    "@babel/preset-env": "^8.0.7",
+    "@babel/preset-react": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.7",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.14.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "autoprefixer": "^10.4.21",
+    "babel-jest": "^30.5.2",
+    "babel-plugin-transform-vite-meta-env": "^1.0.3",
     "esbuild": "^0.25.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
