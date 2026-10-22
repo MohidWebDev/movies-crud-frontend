@@ -20,6 +20,7 @@ Backend repo: [movies-crud-api](https://github.com/MohidWebDev/movies-crud-api)
 - Tailwind CSS
 - Motion (animations)
 - Lucide React (icons)
+- Jest + React Testing Library (testing)
 
 ## Getting Started
 
@@ -59,3 +60,43 @@ To run the full app locally:
 1. Start the backend (`movies-crud-api`) — runs on `http://localhost:3000`
 2. Start this frontend (`movies-crud-frontend`) — runs on `http://localhost:5173`
 3. Make sure `VITE_API_BASE_URL` in this project's `.env` points to the backend's URL
+
+## Testing
+
+Tests use **Jest** (jsdom environment) and **React Testing Library** with `user-event` and `jest-dom`.
+
+```bash
+npm test                # run all tests
+npm run test:watch      # re-run on file changes
+npm run test:coverage   # run tests and write a coverage report to coverage/
+```
+
+### What is tested
+
+| Component        | What the tests check                                                                                                                                 |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LoginForm`      | Rendering, calling `login` with the typed credentials, redirect on success, loading state, error message, required-field validation                  |
+| `RegisterForm`   | Same flow for `register`, plus the required fields and minimum password length                                                                       |
+| `AddReviewForm`  | Star selection, submitting the rating and trimmed comment, cache invalidation, form reset, loading and error states, guards for no rating or no user |
+| `DeleteModal`    | Open/closed rendering, confirm, cancel, close button and backdrop behaviour                                                                          |
+| `StarRating`     | Filled stars for each value, read-only vs interactive mode, `onChange` values                                                                        |
+| `ProtectedRoute` | Loading state, redirect to `/login`, role-based redirect, rendering children                                                                         |
+
+The other components (movie grid, details page, navbar and so on) are not covered yet.
+
+### How API calls are mocked
+
+- The service modules (`src/services/*Api.ts`) are mocked with `jest.mock`, so tests never touch axios or the network. Each test decides what an API call returns or rejects with.
+- `useAuth` and `useToast` are mocked too, so a test can say "the user is an admin" in one line.
+- Shared helpers live in `src/test/`: `factories.ts` (fake movies, users, reviews), `mocks.ts` (`mockAuth`, `mockToast`) and `renderWithProviders.tsx` (React Query client and router).
+
+### Setup notes
+
+- Jest runs through Babel (`babel.config.cjs`), with a plugin that rewrites `import.meta.env` (which Vite uses and Jest cannot parse) to `process.env`.
+- `axios` is mapped to its CommonJS build in `jest.config.js`, because its default ES module build does not load under Jest.
+
+### Testing approach: unit, integration and end-to-end
+
+- **Unit-style tests**: `StarRating` and `DeleteModal` take everything through props, so they are tested in isolation with `jest.fn()` callbacks.
+- **Integration-style tests**: the forms and `ProtectedRoute` render real child components, a real router and a real React Query client, then simulate what a user does (typing, clicking) and check what appears on screen. Only the network layer is mocked.
+- **End-to-end tests** (a real browser against the real frontend and backend) are not part of this project.
