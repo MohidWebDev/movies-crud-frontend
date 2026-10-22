@@ -9,4 +9,13 @@ export default {
     "^@/(.*)$": "<rootDir>/$1",
     "^axios$": "axios/dist/browser/axios.cjs",
   },
+  collectCoverageFrom: [
+    "src/**/*.{ts,tsx}",
+    "!src/**/*.test.{ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/test/**",
+    "!src/main.tsx",
+    "!src/types.ts",
+  ],
+  coverageDirectory: "coverage",
 };
