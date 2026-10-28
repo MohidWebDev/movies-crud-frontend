@@ -8,12 +8,12 @@ interface SingleSelectDropdownProps {
   onChange: (selected: string) => void;
 }
 
-export const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
+export const SingleSelectDropdown = React.memo(function SingleSelectDropdown({
   label,
   options,
   selected,
   onChange,
-}) => {
+}: SingleSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -104,4 +104,4 @@ export const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
       )}
     </div>
   );
-};
+});
