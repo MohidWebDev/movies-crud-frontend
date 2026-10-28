@@ -22,6 +22,7 @@ import { ReviewList } from "./ReviewList";
 import { DeleteReviewModal } from "./DeleteReviewModal";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { optimizePosterUrl } from "../utils/cloudinary";
 import { Link } from "react-router-dom";
 
 interface MovieDetailsProps {
@@ -161,7 +162,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
 
           {movie.posterUrl && !imageError ? (
             <img
-              src={movie.posterUrl}
+              src={optimizePosterUrl(movie.posterUrl, 800)}
               alt={movie.title}
               referrerPolicy="no-referrer"
               onError={() => setImageError(true)}
@@ -219,6 +220,7 @@ export const MovieDetails: React.FC<MovieDetailsProps> = ({
                 <img
                   src={getYouTubeThumbnail(videoId)}
                   alt={`${movie.title} trailer`}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/55 transition-colors flex items-center justify-center">

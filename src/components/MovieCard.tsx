@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "motion/react";
 import { Film, Edit3, Trash2 } from "lucide-react";
 import { Movie } from "../types";
+import { optimizePosterUrl } from "../utils/cloudinary";
 
 interface MovieCardProps {
   movie: Movie;
@@ -50,8 +51,10 @@ export const MovieCard = React.memo(function MovieCard({
       <div className="relative aspect-4/5 w-full min-w-0 bg-zinc-900 overflow-hidden flex items-center justify-center">
         {hasValidImage ? (
           <img
-            src={movie.posterUrl}
+            src={optimizePosterUrl(movie.posterUrl, 400)}
             alt={movie.title}
+            loading="lazy"
+            decoding="async"
             referrerPolicy="no-referrer"
             onError={() => setFailedUrl(movie.posterUrl ?? null)}
             className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"

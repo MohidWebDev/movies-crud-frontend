@@ -9,6 +9,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { getMovieStats, TopMovie } from "../services/movieApi";
+import { optimizePosterUrl } from "../utils/cloudinary";
 
 const SkeletonCard: React.FC = () => (
   <div className="bg-[#121212] rounded-xl border border-zinc-800/90 overflow-hidden animate-pulse w-40 sm:w-56">
@@ -187,7 +188,7 @@ export const TopMovies: React.FC = () => {
                       <div className="aspect-3/4 w-full bg-zinc-900 flex items-center justify-center overflow-hidden">
                         {movie.poster?.url ? (
                           <img
-                            src={movie.poster.url}
+                            src={optimizePosterUrl(movie.poster.url, 400)}
                             alt={movie.title}
                             referrerPolicy="no-referrer"
                             draggable={false}
