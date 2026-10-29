@@ -18,13 +18,23 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  // Playwright starts the frontend itself and waits until it answers
-  webServer: {
-    command: "npm run dev:e2e",
-    url: `http://localhost:${FRONTEND_PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-    // Points the app at the test backend (port 3100), never your real API
-    env: { VITE_API_BASE_URL: `http://localhost:${BACKEND_PORT}` },
-  },
+  // Playwright starts both servers and waits until each one answers
+  webServer: [
+    {
+      // Seeded API on an in-memory database (see movies-crud-api/scripts/e2eServer.js)
+      command: "npm run e2e:server",
+      cwd: "../movies-crud-api",
+      url: `http://localhost:${BACKEND_PORT}/api/movies`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      command: "npm run dev:e2e",
+      url: `http://localhost:${FRONTEND_PORT}`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+      // Points the app at the test backend (port 3100), never your real API
+      env: { VITE_API_BASE_URL: `http://localhost:${BACKEND_PORT}` },
+    },
+  ],
 });
